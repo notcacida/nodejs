@@ -15,15 +15,7 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
-  bids: [
-    {
-      bidId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Bid',
-        required: true
-      }
-    }
-  ],
+
   role: {
     type: String,
     required: false,
