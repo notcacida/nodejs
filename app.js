@@ -6,8 +6,8 @@ const createError = require('http-errors');
 
 // Routes
 const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
-// const bidsRouter = require('./routes/bids');
+const usersRouter = require('./routes/user');
+const bidsRouter = require('./routes/bid');
 const productRouter = require('./routes/product');
 const charityRouter = require('./routes/charity');
 const authRouter = require('./routes/auth');
@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-// app.use('/bids', bidsRouter);
+app.use('/bids', bidsRouter);
 app.use('/products', productRouter);
 app.use('/charities', charityRouter);
 app.use('/auth', authRouter);

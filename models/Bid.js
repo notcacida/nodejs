@@ -7,7 +7,7 @@ const bidSchema = new Schema({
     type: Number,
     required: true
   },
-  userId: {
+  user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
@@ -15,6 +15,11 @@ const bidSchema = new Schema({
   date: {
     type: Date,
     default: Date.now
+  },
+  // Status of bid : 1 = open bid   0 = closed bid
+  status: {
+    type: Boolean,
+    default: 1
   }
 });
 module.exports = mongoose.model('Bid', bidSchema);
