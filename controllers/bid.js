@@ -6,14 +6,18 @@ const Bid = require('../models/Bid');
 exports.addBid = (req, res, next) => {
   const amount = req.body.amount;
   const userThatMadeBid = req.user;
+  const productId = req.body.product;
   const bid = new Bid({
     amount: amount,
-    user: userThatMadeBid
+    user: userThatMadeBid,
+    product: productId
   });
   bid
     .save()
     .then(bid => {
       console.log(bid);
+      // which status to send?
+      res.sendStatus(200);
     })
     .catch(err => {
       console.log(err);

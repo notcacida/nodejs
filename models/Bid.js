@@ -12,6 +12,11 @@ const bidSchema = new Schema({
     ref: 'User',
     required: true
   },
+  product: {
+    type: Schema.Types.ObjectId,
+    ref: 'Product',
+    required: true
+  },
   date: {
     type: Date,
     default: Date.now

@@ -22,7 +22,7 @@ app.use(cookieParser());
 // Login fake user before using app
 // append user object to request
 app.use((req, res, next) => {
-  User.findById('5c58921ada83e80b10dc7ac7')
+  User.findById('5c5994b1aee5312b881690f5')
     .then(user => {
       req.user = user;
       next();
