@@ -1,26 +1,41 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const express = require('express');
+const mongoose = require('mongoose');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const createError = require('http-errors');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-
-var app = express();
-
-// view engine setup
-//app.set('views', path.join(__dirname, 'views'));
-//app.set('view engine', 'jade');
-
+// Routes
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+// const bidsRouter = require('./routes/bids');
+const productRouter = require('./routes/product');
+const charityRouter = require('./routes/charity');
+// Models
+const User = require('./models/User');
+// App setup
+const app = express();
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-//app.use(express.static(path.join(__dirname, 'public')));
 
+// Login fake user before using app
+// append user object to request
+app.use((req, res, next) => {
+  User.findById('5c58921ada83e80b10dc7ac7')
+    .then(user => {
+      req.user = user;
+      next();
+    })
+    .catch(err => console.log(err));
+});
+
+// Routes
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+// app.use('/bids', bidsRouter);
+app.use('/products', productRouter);
+app.use('/charities', charityRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -32,10 +47,32 @@ app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
   res.status(err.status || 500);
-  res.render('error');
 });
+
+// Connect to database
+mongoose
+  .connect(
+    'mongodb+srv://apetrisor:Zaq123ap%21@cluster0-c1rs5.mongodb.net/shop?retryWrites=true',
+    { useNewUrlParser: true }
+  )
+  .then(result => {
+    User.findOne().then(user => {
+      if (!user) {
+        const user = new User({
+          name: 'adi',
+          email: 'user@user.net',
+          password: '123456',
+          cart: {
+            items: []
+          }
+        });
+        user.save();
+      }
+    });
+  })
+  .catch(err => {
+    console.log(err);
+  });
 
 module.exports = app;
