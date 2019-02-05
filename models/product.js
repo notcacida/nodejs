@@ -24,7 +24,8 @@ var schema = new Schema({
 
   charity: {
     type: Schema.ObjectId,
-    ref: 'charity'
+    ref: 'Charity',
+    required: true
   },
   create_date: {
     type: Date,
@@ -33,7 +34,7 @@ var schema = new Schema({
 });
 
 var Product = (module.exports = mongoose.model('Product', schema));
-module.exports = mongoose.model('product', schema);
+module.exports = mongoose.model('Product', schema);
 
 //get products
 

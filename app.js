@@ -53,7 +53,7 @@ app.use(function(err, req, res, next) {
 // Connect to database
 mongoose
   .connect(
-    'mongodb+srv://apetrisor:Zaq123ap%21@cluster0-c1rs5.mongodb.net/shop?retryWrites=true',
+    'mongodb+srv://apetrisor:Zaq123ap%21@cluster0-c1rs5.mongodb.net/Donate2Win?retryWrites=true',
     { useNewUrlParser: true }
   )
   .then(result => {
