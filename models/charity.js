@@ -10,17 +10,8 @@ var schema = new Schema({
     type: String,
     required: true
   },
-  img_rul: {
+  img_url: {
     type: String,
-    required: true
-  },
-  products: {
-    type: [
-      {
-        type: Schema.ObjectId,
-        ref: 'product'
-      }
-    ],
     required: true
   },
   create_date: {
@@ -30,7 +21,7 @@ var schema = new Schema({
 });
 
 var Charity = (module.exports = mongoose.model('Charity', schema));
-module.exports = mongoose.model('charity', schema);
+module.exports = mongoose.model('Charity', schema);
 
 //get products
 

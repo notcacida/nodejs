@@ -17,7 +17,6 @@ exports.getCharityPerId = (req, res) => {
 
 exports.postCharity = (req, res) => {
   var charity = req.body;
-  //console.log(book);
   Charity.addCharity(charity, (err, charity) => {
     if (err) throw err;
     res.json(charity);

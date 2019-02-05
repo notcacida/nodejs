@@ -1,8 +1,8 @@
 const Product = require('../models/product');
+
 exports.getAllProducts = (req, res, next) => {
   Product.getProducts((err, products) => {
     if (err) throw err;
-    //res.send(products);
     res.json(products);
   });
 };
@@ -13,6 +13,7 @@ exports.getProductById = (req, res) => {
     res.json(product);
   });
 };
+
 exports.addProduct = (req, res) => {
   var product = req.body;
   Product.addProduct(product, (err, book) => {
