@@ -31,7 +31,19 @@ exports.getAllBids = (req, res, next) => {
     });
 };
 
-// Get all bids of logged in user
+// Get bids of user
+exports.getBidsOfUser = (req, res, next) => {
+  const userId = req.params.userId;
+  Bid.find({
+    user: userId
+  })
+    .then(result => {
+      res.send(result);
+    })
+    .catch(err => {
+      console.log(err);
+    });
+};
 
 // Get one bid
 exports.getBid = (req, res, next) => {

@@ -7,6 +7,8 @@ const bidController = require('../controllers/bid');
 router.post('/', bidController.addBid);
 // Get all bids
 router.get('/', bidController.getAllBids);
+// Get bids of one particular user
+router.get('/:userId', bidController.getBidsOfUser);
 // Get one bid
 router.get('/:bidId', bidController.getBid);
 // Delete bid
