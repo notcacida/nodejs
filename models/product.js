@@ -23,13 +23,17 @@ var schema = new Schema({
   },
 
   charity: {
-    type: Schema.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'Charity',
     required: true
   },
   create_date: {
     type: Date,
     default: Date.now
+  },
+  end_date: {
+    type: Date,
+    default: new Date(+new Date() + 7 * 24 * 60 * 60 * 1000)
   }
 });
 
