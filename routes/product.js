@@ -13,4 +13,8 @@ router.put('/:_id', productController.putProdById);
 
 router.delete('/:_id', productController.deleteById);
 
+//get products from one charity
+
+router.get('/charity/:_id', productController.getProductsOfCharity);
+
 module.exports = router;

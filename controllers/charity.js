@@ -25,10 +25,21 @@ exports.postCharity = (req, res) => {
 exports.putCharityById = (req, res) => {
   var id = req.params._id;
   var charity = req.body;
-  Charity.updateCharity(id, charity, {}, (err, charity) => {
-    if (err) throw err;
-    res.json(charity);
-  });
+  const uName = req.body.name;
+  const uDescription = req.body.description;
+  Charity.findById(id)
+    .then(charity => {
+      charity.name = uName || charity.name;
+      charity.description = uDescription || charity.description;
+      charity.save();
+      return charity;
+    })
+    .then(charity => {
+      res.send(charity);
+    })
+    .catch(err => {
+      res.json(err);
+    });
 };
 
 exports.deleteCharity = (req, res) => {

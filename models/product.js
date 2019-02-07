@@ -65,12 +65,17 @@ module.exports.updateProduct = (id, product, options, callback) => {
   };
 
   var update = {
-    name: product.name,
-    description: product.description,
-    img_url: product.img_url,
-    price: product.price,
-    bid_price: product.bid_price,
-    charity: product.charity
+    // name: product.name,
+    // description: product.description,
+    // img_url: product.img_url,
+    // price: product.price,
+    // bid_price: product.bid_price,
+    // charity: product.charity
+    name: req.body.name || product.name,
+    description: req.body.description || product.description,
+    img_url: req.body.img_url || product.img_url,
+    price: req.body.price || product.price,
+    charity: req.body.charity || product.charity
   };
 
   Product.findOneAndUpdate(query, update, options, callback);

@@ -29,14 +29,51 @@ exports.addProduct = (req, res) => {
 };
 
 // Update product
-exports.putProdById = (req, res) => {
+exports.putProdById = (req, res, next) => {
+  const uName = req.body.name;
+  const uDescription = req.body.description;
+  const uImg_url = req.body.img_url;
+  const uPrice = req.body.price;
+  const uCharity = req.body.charity;
+
   var id = req.params._id;
   var product = req.body;
   product.bid_price = req.body.price * 0.02;
-  Product.updateProduct(id, product, {}, (err, product) => {
-    if (err) throw err;
-    res.json(product);
-  });
+  // Product.updateProduct(id, product, {}, (err, product) => {
+  //   if (err) throw err;
+  //   res.json(product);
+  // });
+  Product.findById(id)
+    .then(product => {
+      (product.name = uName || product.name),
+        (product.description = uDescription || product.description),
+        (product.img_url = uImg_url || product.img_url),
+        (product.price = uPrice || product.price),
+        (product.charity = uCharity || product.charity);
+      product.save();
+      return product;
+    })
+    .then(product => {
+      res.send(product);
+    })
+    .catch(err => {
+      res.json(err);
+    });
+};
+
+//get products of charity
+exports.getProductsOfCharity = (req, res, next) => {
+  const _id = req.params._id;
+
+  Product.find({
+    charity: _id
+  })
+    .then(result => {
+      res.send(result);
+    })
+    .catch(err => {
+      res.json(err);
+    });
 };
 
 // Delete product
