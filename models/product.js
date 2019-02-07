@@ -11,17 +11,18 @@ var schema = new Schema({
     type: String,
     required: true
   },
-
   img_url: {
     type: String,
     required: true
   },
-
   price: {
     type: Number,
     required: true
   },
-
+  bid_price: {
+    type: Number,
+    required: true
+  },
   charity: {
     type: Schema.Types.ObjectId,
     ref: 'Charity',
@@ -52,7 +53,7 @@ module.exports.getProductById = (_id, callback) => {
   Product.findById(_id, callback);
 };
 
-//add prodocut
+//add product
 module.exports.addProduct = (product, callback) => {
   Product.create(product, callback);
 };
@@ -68,6 +69,7 @@ module.exports.updateProduct = (id, product, options, callback) => {
     description: product.description,
     img_url: product.img_url,
     price: product.price,
+    bid_price: product.bid_price,
     charity: product.charity
   };
 

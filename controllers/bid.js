@@ -1,14 +1,11 @@
 const Bid = require('../models/Bid');
 
-// ACTIONS
-
+// MAIN ACTIONS
 // Add a bid
 exports.addBid = (req, res, next) => {
-  const amount = req.body.amount;
   const userThatMadeBid = req.user;
   const productId = req.body.product;
   const bid = new Bid({
-    amount: amount,
     user: userThatMadeBid,
     product: productId
   });
