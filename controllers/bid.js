@@ -12,9 +12,8 @@ exports.addBid = (req, res, next) => {
   bid
     .save()
     .then(bid => {
-      console.log(bid);
+      res.send(bid);
       // which status to send?
-      res.sendStatus(200);
     })
     .catch(err => {
       console.log(err);
@@ -63,7 +62,7 @@ exports.deleteBid = (req, res, next) => {
   const bidId = req.params.bidId;
   Bid.findByIdAndRemove(bidId)
     .then(bid => {
-      console.log('Succesfully removed bid: ', bid);
+      res.send(bid);
     })
     .catch(err => {
       console.log(err);

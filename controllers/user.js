@@ -65,7 +65,7 @@ exports.editUser = (req, res, next) => {
       return user;
     })
     .then(user => {
-      console.log(user);
+      res.send(user);
     })
     .catch(err => {
       console.log(err);
@@ -77,7 +77,9 @@ let deleteBidsOfUser = userId => {
   Bid.deleteMany({
     user: userId
   })
-    .then()
+    .then(result => {
+      console.log(result);
+    })
     .catch(err => {
       console.log(err);
     });
@@ -88,8 +90,8 @@ exports.deleteUser = (req, res, next) => {
   const userId = req.params.userId;
   User.findByIdAndRemove(userId)
     .then(user => {
-      console.log('Deleted user: ', user);
       deleteBidsOfUser(user._id);
+      res.send(user);
     })
     .catch(err => {
       console.log(err);

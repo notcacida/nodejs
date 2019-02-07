@@ -19,6 +19,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+mongoose.set('useFindAndModify', false);
 
 // Login fake user before using app
 // append user object to request
