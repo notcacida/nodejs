@@ -13,6 +13,6 @@ router.post('/', charityControler.postCharity);
 
 router.put('/:_id', charityControler.putCharityById);
 
-router.delete('/:_id', charityControler.deleteCharity);
+router.delete('/:charityId', charityControler.deleteCharity);
 
 module.exports = router;
