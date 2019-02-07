@@ -15,4 +15,5 @@ router.put('/:userId', userController.editUser);
 router.delete('/:userId', userController.deleteUser);
 // Add money to wallet
 router.put('/wallet/:userId', userController.addMoney);
+
 module.exports = router;
