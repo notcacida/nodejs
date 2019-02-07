@@ -20,6 +20,11 @@ const userSchema = new Schema({
     type: String,
     required: false,
     default: 'user'
+  },
+  wallet: {
+    type: Number,
+    required: false,
+    default: 0
   }
 });
 

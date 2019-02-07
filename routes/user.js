@@ -13,5 +13,6 @@ router.get('/:userId', userController.getUser);
 router.put('/:userId', userController.editUser);
 // Delete user
 router.delete('/:userId', userController.deleteUser);
-
+// Add money to wallet
+router.put('/wallet/:userId', userController.addMoney);
 module.exports = router;

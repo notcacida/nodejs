@@ -55,12 +55,15 @@ exports.editUser = (req, res, next) => {
   const updatedName = req.body.name;
   const updatedRole = req.body.role;
   const userId = req.params.userId;
+  const updatedWallet = req.params.wallet;
+
   User.findById(userId)
     .then(user => {
       user.email = updatedEmail || user.email;
       user.password = updatedPassword || user.password;
       user.name = updatedName || user.name;
       user.role = updatedRole || user.role;
+      user.wallet = updatedWallet || user.wallet;
       user.save();
       return user;
     })
@@ -92,6 +95,21 @@ exports.deleteUser = (req, res, next) => {
     .then(user => {
       deleteBidsOfUser(user._id);
       res.send(user);
+    })
+    .catch(err => {
+      console.log(err);
+    });
+};
+
+//add money to wallet
+exports.addMoney = (req, res, next) => {
+  const userId = req.params.userId;
+  const addition = 100;
+  User.findById(userId)
+    .then(user => {
+      user.wallet = user.wallet + addition;
+      user.save();
+      res.json(user);
     })
     .catch(err => {
       console.log(err);
