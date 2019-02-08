@@ -14,14 +14,17 @@ exports.getAllProducts = (req, res, next) => {
 // Get product
 exports.getProductById = (req, res) => {
   Product.getProductById(req.params._id, (err, product) => {
-    if (err) throw err;
+    if (err) {
+      res.status(404).send('404 Not found');
+      throw err;
+    }
     res.json(product);
   });
 };
 
 // Add product
 exports.addProduct = (req, res) => {
-  var product = req.body;
+  const product = req.body;
   product.bid_price = Math.round((req.body.price * 0.02 + 0.00001) * 100) / 100;
   Product.addProduct(product, (err, book) => {
     if (err) throw err;
@@ -31,12 +34,12 @@ exports.addProduct = (req, res) => {
 
 // Update product
 exports.putProdById = (req, res, next) => {
+  const id = req.params._id;
   const uName = req.body.name;
   const uDescription = req.body.description;
   const uImg_url = req.body.img_url;
   const uPrice = req.body.price;
   const uCharity = req.body.charity;
-  var id = req.params._id;
   Product.findById(id)
     .then(product => {
       (product.name = uName || product.name),
@@ -54,7 +57,8 @@ exports.putProdById = (req, res, next) => {
       res.send(product);
     })
     .catch(err => {
-      res.json(err);
+      console.log(err);
+      res.status(404).send('404 Not found');
     });
 };
 
@@ -68,7 +72,8 @@ exports.getProductsOfCharity = (req, res, next) => {
       res.send(result);
     })
     .catch(err => {
-      res.json(err);
+      console.log(err);
+      res.status(404).send('404 Not found');
     });
 };
 
@@ -87,14 +92,14 @@ let deleteBidsofProduct = _id => {
 
 // Delete product
 exports.deleteById = (req, res, next) => {
-  var id = req.params._id;
-
+  const id = req.params._id;
   Product.findByIdAndRemove(id)
     .then(product => {
       deleteBidsofProduct(id);
       res.json(product);
     })
     .catch(err => {
-      res.json(err);
+      console.log(err);
+      res.status(404).send('404 Not found');
     });
 };

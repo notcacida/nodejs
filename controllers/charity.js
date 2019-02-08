@@ -10,13 +10,16 @@ exports.getCharities = (req, res) => {
 
 exports.getCharityPerId = (req, res) => {
   Charity.getCharityById(req.params._id, (err, charity) => {
-    if (err) throw err;
+    if (err) {
+      res.status(404).send('404 Not found');
+      throw err;
+    }
     res.json(charity);
   });
 };
 
 exports.postCharity = (req, res) => {
-  var charity = req.body;
+  const charity = req.body;
   Charity.addCharity(charity, (err, charity) => {
     if (err) throw err;
     res.json(charity);
@@ -24,8 +27,7 @@ exports.postCharity = (req, res) => {
 };
 
 exports.putCharityById = (req, res) => {
-  var id = req.params._id;
-  var charity = req.body;
+  const id = req.params._id;
   const uName = req.body.name;
   const uDescription = req.body.description;
   Charity.findById(id)
@@ -39,7 +41,8 @@ exports.putCharityById = (req, res) => {
       res.send(charity);
     })
     .catch(err => {
-      res.json(err);
+      console.log(err);
+      res.status(404).send('404 Not found');
     });
 };
 
@@ -67,6 +70,7 @@ exports.deleteCharity = (req, res, next) => {
       res.json(charity);
     })
     .catch(err => {
-      res.json(err);
+      console.log(err);
+      res.status(404).send('404 Not found');
     });
 };

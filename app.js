@@ -40,18 +40,26 @@ app.use('/products', productRouter);
 app.use('/charities', charityRouter);
 app.use('/auth', authRouter);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+// 404 page
+app.use('*', function(req, res) {
+  res.status(404).send('404 Not found');
 });
+// 404 responses for composite routes are handled in each route's respective controller
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  res.status(err.status || 500);
-});
+// // Look at this later
+// // catch 404 and forward to error handler
+// app.use(function(req, res, next) {
+//   const err = createError(404);
+//   next(err);
+// });
+
+// // error handler
+// app.use(function(err, req, res, next) {
+//   // set locals, only providing error in development
+//   res.locals.message = err.message;
+//   res.locals.error = req.app.get('env') === 'development' ? err : {};
+//   res.status(err.status || 500);
+// });
 
 // Connect to database
 mongoose

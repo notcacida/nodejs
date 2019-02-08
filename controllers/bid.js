@@ -42,6 +42,7 @@ exports.getBidsOfUser = (req, res, next) => {
     })
     .catch(err => {
       console.log(err);
+      res.status(404).send('404 Not found');
     });
 };
 
@@ -54,6 +55,7 @@ exports.getBid = (req, res, next) => {
     })
     .catch(err => {
       console.log(err);
+      res.status(404).send('404 Not found');
     });
 };
 
@@ -66,5 +68,6 @@ exports.deleteBid = (req, res, next) => {
     })
     .catch(err => {
       console.log(err);
+      res.status(404).send('404 Not found');
     });
 };

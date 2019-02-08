@@ -47,6 +47,7 @@ exports.getUser = (req, res, next) => {
     })
     .catch(err => {
       console.log(err);
+      res.status(404).send('404 Not found');
     });
 };
 
@@ -74,6 +75,7 @@ exports.editUser = (req, res, next) => {
     })
     .catch(err => {
       console.log(err);
+      res.status(404).send('404 Not found');
     });
 };
 
@@ -100,6 +102,7 @@ exports.deleteUser = (req, res, next) => {
     })
     .catch(err => {
       console.log(err);
+      res.status(404).send('404 Not found');
     });
 };
 
