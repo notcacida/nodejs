@@ -1,5 +1,5 @@
-const Charity = require('../models/charity');
-const Product = require('../models/product');
+const Charity = require('../models/Charity');
+const Product = require('../models/Product');
 
 exports.getCharities = (req, res) => {
   Charity.getCharities((err, charities) => {
@@ -43,6 +43,9 @@ exports.putCharityById = (req, res) => {
     });
 };
 
+// Delete bids associated with the products that were removed with charity
+
+// Delete products associated with the deleted charity
 let deleteProductsOfCharity = charityId => {
   Product.deleteMany({
     charity: charityId
@@ -55,9 +58,9 @@ let deleteProductsOfCharity = charityId => {
     });
 };
 
+// Delete charity
 exports.deleteCharity = (req, res, next) => {
   const charityId = req.params.charityId;
-
   Charity.findByIdAndRemove(charityId)
     .then(charity => {
       deleteProductsOfCharity(charityId);
@@ -66,7 +69,4 @@ exports.deleteCharity = (req, res, next) => {
     .catch(err => {
       res.json(err);
     });
-  // Charity.removeCharity(req.params._id, (err, charity) => {
-  //   if (err) throw err;
-  //   res.json(charity);
 };

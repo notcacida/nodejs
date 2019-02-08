@@ -1,6 +1,7 @@
 const Bid = require('../models/Bid');
 
-// MAIN ACTIONS
+// ACTIONS
+
 // Add a bid
 exports.addBid = (req, res, next) => {
   const userThatMadeBid = req.user;
@@ -13,7 +14,6 @@ exports.addBid = (req, res, next) => {
     .save()
     .then(bid => {
       res.send(bid);
-      // which status to send?
     })
     .catch(err => {
       console.log(err);
