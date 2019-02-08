@@ -53,12 +53,14 @@ exports.getUser = (req, res, next) => {
 
 // Edit user
 exports.editUser = (req, res, next) => {
+  // ID
+  const userId = req.params.userId;
+  // Properties
   const updatedEmail = req.body.email;
   const updatedPassword = req.body.password;
   const updatedName = req.body.name;
   const updatedRole = req.body.role;
-  const userId = req.params.userId;
-  const updatedWallet = req.params.wallet;
+  const updatedWallet = req.body.wallet;
 
   User.findById(userId)
     .then(user => {
