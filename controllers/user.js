@@ -9,11 +9,13 @@ exports.addUser = (req, res, next) => {
   const password = req.body.password;
   const name = req.body.name;
   const role = req.body.role;
+  const wallet = req.body.wallet;
   const user = new User({
     email: email,
     password: password,
     name: name,
-    role: role
+    role: role,
+    wallet: wallet
   });
   user
     .save()
@@ -75,7 +77,7 @@ exports.editUser = (req, res, next) => {
     });
 };
 
-// when we delete a user, we also want to delete his bids
+// Delete bids associated with user
 let deleteBidsOfUser = userId => {
   Bid.deleteMany({
     user: userId

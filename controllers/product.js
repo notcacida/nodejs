@@ -1,4 +1,4 @@
-const Product = require('../models/product');
+const Product = require('../models/Product');
 const Bid = require('../models/Bid');
 
 // ACTIONS
@@ -36,14 +36,9 @@ exports.putProdById = (req, res, next) => {
   const uImg_url = req.body.img_url;
   const uPrice = req.body.price;
   const uCharity = req.body.charity;
-
   var id = req.params._id;
   var product = req.body;
   product.bid_price = req.body.price * 0.02;
-  // Product.updateProduct(id, product, {}, (err, product) => {
-  //   if (err) throw err;
-  //   res.json(product);
-  // });
   Product.findById(id)
     .then(product => {
       (product.name = uName || product.name),
@@ -62,10 +57,9 @@ exports.putProdById = (req, res, next) => {
     });
 };
 
-//get products of charity
+// Get products of charity
 exports.getProductsOfCharity = (req, res, next) => {
   const _id = req.params._id;
-
   Product.find({
     charity: _id
   })
@@ -76,6 +70,8 @@ exports.getProductsOfCharity = (req, res, next) => {
       res.json(err);
     });
 };
+
+// Delete bids associated with products deleted
 let deleteBidsofProduct = _id => {
   Bid.deleteMany({
     product: _id
@@ -87,6 +83,7 @@ let deleteBidsofProduct = _id => {
       console.log(err);
     });
 };
+
 // Delete product
 exports.deleteById = (req, res, next) => {
   var id = req.params._id;
