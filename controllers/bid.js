@@ -1,22 +1,28 @@
 const Bid = require('../models/Bid');
-const BidH = require('../models/Bid_history');
+const BidHistorical = require('../models/Bid_history');
+
 // ACTIONS
 
 // Add a bid
 exports.addBid = (req, res, next) => {
   const userThatMadeBid = req.user;
   const productId = req.body.product;
+  const charityId = req.body.charity;
   const bid = new Bid({
     user: userThatMadeBid,
-    product: productId
+    product: productId,
+    charity: charityId
   });
-  const historyBid = new BidH({
+  const historyBid = new BidHistorical({
     user: userThatMadeBid,
-    product: productId
+    product: productId,
+    charity: charityId
   });
-  //add bid to history
-  historyBid.save();
-
+  // Add bid to history
+  historyBid.save().catch(err => {
+    console.log(err);
+  });
+  // Add bid to regular collection
   bid
     .save()
     .then(bid => {

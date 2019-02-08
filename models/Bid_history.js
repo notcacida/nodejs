@@ -13,6 +13,11 @@ const bidhSchema = new Schema({
     ref: 'Product',
     required: true
   },
+  charity: {
+    type: Schema.Types.ObjectId,
+    ref: 'Charity',
+    required: true
+  },
   date: {
     type: Date,
     default: Date.now
