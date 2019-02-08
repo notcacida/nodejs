@@ -120,5 +120,6 @@ exports.addMoney = (req, res, next) => {
     })
     .catch(err => {
       console.log(err);
+      res.status(404).send('404 Not found');
     });
 };
