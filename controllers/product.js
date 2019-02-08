@@ -22,7 +22,7 @@ exports.getProductById = (req, res) => {
 // Add product
 exports.addProduct = (req, res) => {
   var product = req.body;
-  product.bid_price = req.body.price * 0.02;
+  product.bid_price = Math.round((req.body.price * 0.02 + 0.00001) * 100) / 100;
   Product.addProduct(product, (err, book) => {
     if (err) throw err;
     res.json(product);
@@ -37,15 +37,16 @@ exports.putProdById = (req, res, next) => {
   const uPrice = req.body.price;
   const uCharity = req.body.charity;
   var id = req.params._id;
-  var product = req.body;
-  product.bid_price = req.body.price * 0.02;
   Product.findById(id)
     .then(product => {
       (product.name = uName || product.name),
         (product.description = uDescription || product.description),
         (product.img_url = uImg_url || product.img_url),
         (product.price = uPrice || product.price),
-        (product.charity = uCharity || product.charity);
+        (product.charity = uCharity || product.charity),
+        (product.bid_price =
+          Math.round((uPrice * 0.02 + 0.00001) * 100) / 100 ||
+          Math.round((product.price * 0.02 + 0.00001) * 100) / 100);
       product.save();
       return product;
     })
