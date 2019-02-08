@@ -1,5 +1,5 @@
-const Charity = require('../models/Charity');
-const Product = require('../models/Product');
+const Charity = require('../models/charity');
+const Product = require('../models/product');
 
 exports.getCharities = (req, res) => {
   Charity.getCharities((err, charities) => {

@@ -64,3 +64,5 @@ module.exports.removeCharity = (id, callback) => {
 
   Charity.deleteOne(query, callback);
 };
+
+// comment to expose this file to heroku GIT status

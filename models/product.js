@@ -89,3 +89,5 @@ module.exports.removeProduct = (id, callback) => {
 
   Product.deleteOne(query, callback);
 };
+
+// comment to expose this file to heroku GIT status
