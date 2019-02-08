@@ -1,5 +1,5 @@
 const Bid = require('../models/Bid');
-
+const BidH = require('../models/Bid_history');
 // ACTIONS
 
 // Add a bid
@@ -10,6 +10,13 @@ exports.addBid = (req, res, next) => {
     user: userThatMadeBid,
     product: productId
   });
+  const historyBid = new BidH({
+    user: userThatMadeBid,
+    product: productId
+  });
+  //add bid to history
+  historyBid.save();
+
   bid
     .save()
     .then(bid => {
