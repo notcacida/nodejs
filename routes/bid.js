@@ -7,6 +7,8 @@ const bidController = require('../controllers/bid');
 router.post('/', bidController.addBid);
 // Get all bids
 router.get('/', bidController.getAllBids);
+// Get historical bids
+router.get('/historical', bidController.getHistoricalBids);
 // Get one bid
 router.get('/bid/:bidId', bidController.getBid);
 // Get bids of user
