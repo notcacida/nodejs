@@ -4,7 +4,7 @@ const router = express.Router();
 const bidController = require('../controllers/bid');
 
 // Add a bid
-router.post('/', bidController.addBid);
+router.post('/', bidController.checkFunds, bidController.addBid);
 // Get all bids
 router.get('/', bidController.getAllBids);
 // Get historical bids

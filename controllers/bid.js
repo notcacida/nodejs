@@ -3,10 +3,27 @@ const User = require('../models/User');
 const Product = require('../models/product');
 const BidHistorical = require('../models/Bid_history');
 
-// Aux Actions
+// Order is:    Check funds -> add bid -> checkout product -> pay for product
 
-// Withdraws bid price from user's wallet
-let takeFromWallet = (price, buyerId) => {
+// Check if user has enough funds: used as middleware in ROUTES: bid.js
+exports.checkFunds = (req, res, next) => {
+  let user = req.user;
+  let product = req.body.product;
+  Product.findById(product)
+    .then(product => {
+      if (user.wallet >= product.bid_price) {
+        next();
+      } else {
+        res.status(403).json('User does not have enough credit to bid.');
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    });
+};
+
+// Withdraw bid price from user's wallet
+let payForProduct = (price, buyerId) => {
   User.findById(buyerId)
     .then(user => {
       user.wallet = user.wallet - price;
@@ -17,22 +34,19 @@ let takeFromWallet = (price, buyerId) => {
     });
 };
 
-// Gets price of product user bidded on
-let payForProduct = (prodId, buyerId) => {
-  console.log('take from wallet of', buyerId, ' price of ', prodId);
+// Checkout product user bidded on
+let checkoutProduct = (prodId, buyerId) => {
   Product.findById(prodId).then(product => {
-    console.log(product);
-    takeFromWallet(product.price, buyerId);
+    payForProduct(product.bid_price, buyerId);
   });
 };
 
 // MAIN ACTIONS
 
 // Add a bid
-
 // Bid is added to historical collection READ_ONLY
 // Bid is added to regular collection
-// Amount is withdrawn from user's wallet: payForProduct -> takeFromWallet
+// Amount is withdrawn from user's wallet
 
 exports.addBid = (req, res, next) => {
   const userThatMadeBid = req.user;
@@ -52,12 +66,13 @@ exports.addBid = (req, res, next) => {
   historyBid.save().catch(err => {
     console.log(err);
   });
+
   // Add bid to regular collection
   bid
     .save()
     .then(bid => {
-      payForProduct(bid.product, userThatMadeBid);
-      res.send(bid);
+      checkoutProduct(bid.product, userThatMadeBid);
+      res.json(bid);
     })
     .catch(err => {
       console.log(err);
@@ -70,7 +85,7 @@ exports.getAllBids = (req, res, next) => {
     .populate('product')
     .populate('charity')
     .then(bids => {
-      res.status(200).send(bids);
+      res.status(200).json(bids);
     })
     .catch(err => {
       console.log(err);
@@ -80,7 +95,7 @@ exports.getAllBids = (req, res, next) => {
 exports.getHistoricalBids = (req, res, next) => {
   BidHistorical.find()
     .then(bids => {
-      res.status(200).send(bids);
+      res.status(200).json(bids);
     })
     .catch(err => {
       console.log(err);
@@ -96,11 +111,11 @@ exports.getBidsOfUser = (req, res, next) => {
     .populate('product')
     .populate('charity')
     .then(result => {
-      res.send(result);
+      res.json(result);
     })
     .catch(err => {
       console.log(err);
-      res.status(404).send('404 Not found');
+      res.status(404).json('404 Not found');
     });
 };
 
@@ -111,31 +126,34 @@ exports.getBid = (req, res, next) => {
     .populate('product')
     .populate('charity')
     .then(bid => {
-      res.send(bid);
+      res.json(bid);
     })
     .catch(err => {
       console.log(err);
-      res.status(404).send('404 Not found');
+      res.status(404).json('404 Not found');
     });
 };
 
-let refundUser = userId => {
-  User.findById(userId).then(user => {
-    // add to user's wallet : bid.amount ;)
+// Delete a bid
+// Refund user
+
+let refundUser = (prodId, buyerId) => {
+  Product.findById(prodId).then(product => {
+    payForProduct(-product.bid_price, buyerId);
   });
 };
 
-// Delete a bid
-// -> Refund user
 exports.deleteBid = (req, res, next) => {
   const bidId = req.params.bidId;
   Bid.findByIdAndRemove(bidId)
     .then(bid => {
-      refundUser(bid.user);
-      res.send(bid);
+      res.json(bid);
+      refundUser(bid.product, bid.user);
     })
     .catch(err => {
       console.log(err);
-      res.status(404).send('404 Not found');
+      res.status(404).json('404 Not found');
     });
 };
+
+exports.refundUser = refundUser;

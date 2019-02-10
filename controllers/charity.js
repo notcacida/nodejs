@@ -49,6 +49,8 @@ exports.putCharityById = (req, res) => {
 
 // Logical order of delete is either 1-2-3 or 1-3-2
 
+// Refund users of bids deleted
+// ?
 // 3. Delete bids associated with the products that were removed with charity
 let deleteBidsOfCharity = charityId => {
   Bid.deleteMany({
