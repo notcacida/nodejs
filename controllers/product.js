@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const Bid = require('../models/Bid');
+const User = require('../models/User');
 
 // ACTIONS
 
@@ -77,6 +78,8 @@ exports.getProductsOfCharity = (req, res, next) => {
     });
 };
 
+// Refund users of bids deleted
+// ?
 // Delete bids associated with products deleted
 let deleteBidsofProduct = _id => {
   Bid.deleteMany({

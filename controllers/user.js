@@ -20,7 +20,7 @@ exports.addUser = (req, res, next) => {
   user
     .save()
     .then(result => {
-      res.send(result);
+      res.json(result);
     })
     .catch(err => {
       console.log(err);
@@ -31,7 +31,7 @@ exports.addUser = (req, res, next) => {
 exports.getAllUsers = (req, res, next) => {
   User.find()
     .then(users => {
-      res.send(users);
+      res.json(users);
     })
     .catch(err => {
       console.log(err);
@@ -43,11 +43,11 @@ exports.getUser = (req, res, next) => {
   const userId = req.params.userId;
   User.findById(userId)
     .then(user => {
-      res.send(user);
+      res.json(user);
     })
     .catch(err => {
       console.log(err);
-      res.status(404).send('404 Not found');
+      res.status(404).json('404 Not found');
     });
 };
 
@@ -73,11 +73,11 @@ exports.editUser = (req, res, next) => {
       return user;
     })
     .then(user => {
-      res.send(user);
+      res.json(user);
     })
     .catch(err => {
       console.log(err);
-      res.status(404).send('404 Not found');
+      res.status(404).json('404 Not found');
     });
 };
 
@@ -100,7 +100,7 @@ exports.deleteUser = (req, res, next) => {
   User.findByIdAndRemove(userId)
     .then(user => {
       deleteBidsOfUser(user._id);
-      res.send(user);
+      res.json(user);
     })
     .catch(err => {
       console.log(err);
