@@ -82,8 +82,6 @@ exports.addBid = (req, res, next) => {
 // Get all bids
 exports.getAllBids = (req, res, next) => {
   Bid.find()
-    .populate('product')
-    .populate('charity')
     .then(bids => {
       res.status(200).json(bids);
     })
@@ -108,8 +106,21 @@ exports.getBidsOfUser = (req, res, next) => {
   Bid.find({
     user: userId
   })
-    .populate('product')
-    .populate('charity')
+    .then(result => {
+      res.json(result);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(404).json('404 Not found');
+    });
+};
+
+// Get bids on product
+exports.getBidsOnProduct = (req, res, next) => {
+  const prodId = req.params.prodId;
+  Bid.find({
+    product: prodId
+  })
     .then(result => {
       res.json(result);
     })
@@ -123,8 +134,6 @@ exports.getBidsOfUser = (req, res, next) => {
 exports.getBid = (req, res, next) => {
   const bidId = req.params.bidId;
   Bid.findById(bidId)
-    .populate('product')
-    .populate('charity')
     .then(bid => {
       res.json(bid);
     })
@@ -136,13 +145,11 @@ exports.getBid = (req, res, next) => {
 
 // Delete a bid
 // Refund user
-
 let refundUser = (prodId, buyerId) => {
   Product.findById(prodId).then(product => {
     payForProduct(-product.bid_price, buyerId);
   });
 };
-
 exports.deleteBid = (req, res, next) => {
   const bidId = req.params.bidId;
   Bid.findByIdAndRemove(bidId)

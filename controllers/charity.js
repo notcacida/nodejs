@@ -47,10 +47,31 @@ exports.putCharityById = (req, res) => {
     });
 };
 
-// Logical order of delete is either 1-2-3 or 1-3-2
+// Logical order of delete is either 4-1-2-3 or 4-1-3-2
 
-// Refund users of bids deleted
-// ?
+// 4. Refund users of bids deleted
+let refundUser = require('./bid').refundUser;
+exports.refundUsers = (req, res, next) => {
+  let charityId = req.params.charityId;
+  console.log('refund users of charity ', charityId);
+  Bid.find({
+    charity: charityId
+  })
+    .then(bids => {
+      console.log('bids to delete are ', bids);
+      for (let bid in bids) {
+        console.log('bid to delete', bids[bid]);
+        setTimeout(function() {
+          refundUser(bids[bid].product, bids[bid].user);
+        }, bid * 1000);
+      }
+      next();
+    })
+    .catch(err => {
+      console.log(err);
+    });
+};
+
 // 3. Delete bids associated with the products that were removed with charity
 let deleteBidsOfCharity = charityId => {
   Bid.deleteMany({
