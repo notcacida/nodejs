@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const createError = require('http-errors');
+const expressValidator = require('express-validator');
 
 // Routes
 const indexRouter = require('./routes/index');
@@ -15,6 +16,7 @@ const authRouter = require('./routes/auth');
 const User = require('./models/User');
 // App setup
 const app = express();
+app.use(expressValidator());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

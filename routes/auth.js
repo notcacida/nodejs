@@ -17,5 +17,6 @@ const authControler = require('../controllers/auth');
 //register process
 
 router.post('/register', authControler.Register);
+router.post('/login', authControler.Login);
 
 module.exports = router;
