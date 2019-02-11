@@ -118,9 +118,9 @@ let deleteBidsofProduct = _id => {
 // Delete product
 exports.deleteById = (req, res, next) => {
   const productId = req.params._id;
-  Product.findByIdAndRemove(id)
+  Product.findByIdAndRemove(productId)
     .then(product => {
-      deleteBidsofProduct(id);
+      deleteBidsofProduct(productId);
       res.json(product);
     })
     .catch(err => {
