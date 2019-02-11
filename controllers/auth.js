@@ -18,7 +18,8 @@ exports.Register = (req, res) => {
   const userData = {
     name: req.body.name,
     email: req.body.email,
-    password: req.body.password
+    password: req.body.password,
+    role: req.body.role
   };
   if (_validateEmail(req.body.email)) {
     User.findOne({
@@ -56,7 +57,7 @@ exports.Register = (req, res) => {
   //   let errors = req.validationErrors();
 };
 
-exports.Login = (req, res) => {
+exports.Login = (req, res, next) => {
   User.findOne({
     email: req.body.email
   })
@@ -65,14 +66,18 @@ exports.Login = (req, res) => {
         if (bcrypt.compareSync(req.body.password, user.password)) {
           //Pasword match
           const payload = {
+            id: user._id,
             name: user.name,
             email: user.email,
-            password: user.password
+            password: user.password,
+            role: user.role,
+            wallet: user.wallet
           };
           let token = jwt.sign(payload, process.env.SECRET_KEY, {
             expiresIn: 1440
           });
           res.send(token);
+          next();
         } else {
           //pass do not match
           res.json({ error: 'Wrong password' });

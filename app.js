@@ -4,6 +4,7 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const createError = require('http-errors');
 const expressValidator = require('express-validator');
+const jwt = require('jsonwebtoken');
 
 // Routes
 const indexRouter = require('./routes/index');
@@ -12,8 +13,12 @@ const bidsRouter = require('./routes/bid');
 const productRouter = require('./routes/product');
 const charityRouter = require('./routes/charity');
 const authRouter = require('./routes/auth');
+
+const verifyUser = require('./util/verifyUser');
+
 // Models
 const User = require('./models/User');
+
 // App setup
 const app = express();
 app.use(expressValidator());
@@ -23,15 +28,24 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 mongoose.set('useFindAndModify', false);
 
-// Login fake user before using app
-// append user object to request
-app.use((req, res, next) => {
-  User.findById('5c5994b1aee5312b881690f5')
-    .then(user => {
-      req.user = user;
+// Login actual user before using app
+// We look at token and login THAT user, belonging to the token
+// We append this user object to every subsequent request made by our app.
+app.use(verifyUser, (req, res, next) => {
+  jwt.verify(req.token, 'secret', (err, authData) => {
+    if (err) {
+      // Action done as guest
       next();
-    })
-    .catch(err => console.log(err));
+    } else {
+      // Actions done as logged in user
+      User.findById(authData.id)
+        .then(user => {
+          req.user = user;
+          next();
+        })
+        .catch(err => console.log(err));
+    }
+  });
 });
 
 // Routes
@@ -41,10 +55,11 @@ app.use('/bids', bidsRouter);
 app.use('/products', productRouter);
 app.use('/charities', charityRouter);
 app.use('/auth', authRouter);
+// Routes are protected in respective controller files
 
 // 404 page
 app.use('*', function(req, res) {
-  res.status(404).send('404 Not found');
+  res.status(404);
 });
 // 404 responses for composite routes are handled in each route's respective controller
 
