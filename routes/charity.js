@@ -1,17 +1,21 @@
 var express = require('express');
 var router = express.Router();
 
-var charityControler = require('../controllers/charity');
+var charityController = require('../controllers/charity');
 
 // Add charity
-router.post('/', charityControler.postCharity);
+router.post('/', charityController.postCharity);
 /* Get all charities */
-router.get('/', charityControler.getCharities);
+router.get('/', charityController.getCharities);
 // Get charity by id
-router.get('/:_id', charityControler.getCharityPerId);
+router.get('/:_id', charityController.getCharityPerId);
 // Update charity
-router.put('/:_id', charityControler.putCharityById);
+router.put('/:_id', charityController.putCharityById);
 // Delete charity
-router.delete('/:charityId', charityControler.deleteCharity);
+router.delete(
+  '/:charityId',
+  charityController.refundUsers,
+  charityController.deleteCharity
+);
 
 module.exports = router;

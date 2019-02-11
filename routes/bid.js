@@ -13,6 +13,8 @@ router.get('/historical', bidController.getHistoricalBids);
 router.get('/bid/:bidId', bidController.getBid);
 // Get bids of user
 router.get('/user/:userId', bidController.getBidsOfUser);
+// Get bids on product
+router.get('/product/:productId', bidController.getBidsOnProduct);
 // Delete bid
 router.delete('/:bidId', bidController.deleteBid);
 
