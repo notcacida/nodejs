@@ -12,10 +12,6 @@ router.get('/:_id', charityController.getCharityPerId);
 // Update charity
 router.put('/:_id', charityController.putCharityById);
 // Delete charity
-router.delete(
-  '/:charityId',
-  charityController.refundUsers,
-  charityController.deleteCharity
-);
+router.delete('/:charityId', charityController.deleteCharity);
 
 module.exports = router;

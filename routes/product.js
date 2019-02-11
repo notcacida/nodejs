@@ -13,12 +13,7 @@ router.get('/charity/:_id', productController.getProductsOfCharity);
 router.get('/:_id', productController.getProductById);
 // Update product
 router.put('/:_id', productController.putProdById);
-
 // Delete product
-router.delete(
-  '/:_id',
-  productController.refundUsers,
-  productController.deleteById
-);
+router.delete('/:_id', productController.deleteById);
 
 module.exports = router;

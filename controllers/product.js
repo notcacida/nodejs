@@ -81,27 +81,6 @@ exports.getProductsOfCharity = (req, res, next) => {
 // Refund users of bids deleted
 let refundUser = require('./bid').refundUser;
 
-exports.refundUsers = (req, res, next) => {
-  let prodId = req.params._id;
-  console.log('refund users of product ', prodId);
-  Bid.find({
-    product: prodId
-  })
-    .then(bids => {
-      console.log('bids to delete are ', bids);
-      for (let bid in bids) {
-        console.log('bid to delete', bids[bid]);
-        setTimeout(function() {
-          refundUser(bids[bid].product, bids[bid].user);
-        }, bid * 1000);
-      }
-      next();
-    })
-    .catch(err => {
-      console.log(err);
-    });
-};
-
 // Delete bids associated with products deleted
 let deleteBidsofProduct = _id => {
   Bid.deleteMany({
