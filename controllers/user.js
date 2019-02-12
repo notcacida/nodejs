@@ -23,13 +23,15 @@ exports.addUser = (req, res, next) => {
     user
       .save()
       .then(result => {
-        res.json(result);
+        res.json({ users: result });
       })
       .catch(err => {
         console.log(err);
       });
-  } else if (req.user.role === 'user') {
-    res.status(403).json('Regular user not authorized to add other users');
+  } else {
+    res
+      .status(403)
+      .json({ error: 'Invalid credentials for editing other users' });
   }
 };
 
@@ -43,7 +45,7 @@ exports.getAllUsers = (req, res, next) => {
   } else if (req.user.role === 'admin') {
     User.find()
       .then(users => {
-        res.json(users);
+        res.json({ users: users });
       })
       .catch(err => {
         console.log(err);
@@ -53,7 +55,7 @@ exports.getAllUsers = (req, res, next) => {
       _id: req.user._id
     })
       .then(users => {
-        res.json(users);
+        res.json({ users: users });
       })
       .catch(err => {
         console.log(err);
@@ -70,11 +72,11 @@ exports.getUser = (req, res, next) => {
   let showUser = () => {
     User.findById(userId)
       .then(user => {
-        res.json(user);
+        res.json({ users: user });
       })
       .catch(err => {
         console.log(err);
-        res.status(404).json('404 Not found');
+        res.sendStatus(404);
       });
   };
   if (typeof req.user === 'undefined') {
@@ -106,10 +108,7 @@ exports.editUser = (req, res, next) => {
 
   if (typeof req.user === 'undefined') {
     res.status(403).json({ error: 'Guest cannot edit users' });
-  } else if (
-    req.user.role === 'admin' ||
-    req.user._id.toString() === userId.toString()
-  ) {
+  } else if (req.user.role === 'admin') {
     User.findById(userId)
       .then(user => {
         user.email = updatedEmail || user.email;
@@ -121,12 +120,33 @@ exports.editUser = (req, res, next) => {
         return user;
       })
       .then(user => {
-        res.json(user);
+        res.json({ users: user });
       })
       .catch(err => {
         console.log(err);
-        res.status(404).json('404 Not found');
+        res.sendStatus(404);
       });
+  } else if (req.user.role === 'user') {
+    if (req.user._id.toString() !== userId.toString()) {
+      res.status(403).json({ error: 'You can only edit your own user' });
+    } else {
+      // User edits his own user, can only edit his email and name
+      // Remember to allow editing own password
+      User.findById(userId)
+        .then(user => {
+          user.email = updatedEmail || user.email;
+          user.name = updatedName || user.name;
+          user.save();
+          return user;
+        })
+        .then(user => {
+          res.json({ users: user });
+        })
+        .catch(err => {
+          console.log(err);
+          res.sendStatus(404);
+        });
+    }
   } else {
     res.status(403).json({ error: 'Invalid credentials to edit a user' });
   }
@@ -138,7 +158,7 @@ let deleteBidsOfUser = userId => {
     user: userId
   })
     .then(result => {
-      console.log(result);
+      console.log('Bids deleted', result);
     })
     .catch(err => {
       console.log(err);
@@ -155,17 +175,18 @@ exports.deleteUser = (req, res, next) => {
     User.findByIdAndRemove(userId)
       .then(user => {
         deleteBidsOfUser(user._id);
-        res.json(user);
+        res.json({ users: user });
       })
       .catch(err => {
         console.log(err);
-        res.status(404).send('404 Not found');
+        res.sendStatus(404);
       });
   } else {
     res
       .status(403)
       .json({ error: 'You do not have the credentials to delete users' });
   }
+  // We may allow users to delete their own account, but it's OK sans this feature
 };
 
 // Add money to wallet
@@ -183,11 +204,11 @@ exports.addMoney = (req, res, next) => {
       .then(user => {
         user.wallet = user.wallet + addition;
         user.save();
-        res.json(user);
+        res.json({ users: user });
       })
       .catch(err => {
         console.log(err);
-        res.status(404).send('404 Not found');
+        res.sendStatus(404);
       });
   }
 };

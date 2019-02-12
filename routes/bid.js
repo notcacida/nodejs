@@ -30,6 +30,6 @@ router.get('/product/:productId', bidController.getBidsOnProduct);
 router.delete('/:bidId', bidController.deleteBid);
 
 // Delete all bids
-router.delete('/', bidController.deleteAll);
+router.delete('/', verifyToken, bidController.deleteAll);
 
 module.exports = router;
