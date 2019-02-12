@@ -38,7 +38,7 @@ exports.Register = (req, res) => {
               });
           });
         } else {
-          res.json({ error: 'User already exists' });
+          res.status(409).json({ error: 'User already exists' });
         }
       })
       .catch(err => {
@@ -80,10 +80,10 @@ exports.Login = (req, res, next) => {
           next();
         } else {
           //pass do not match
-          res.status(403).json({ errorCode: 1, error: 'Wrong password.' });
+          res.status(403).json({ error: 'Wrong password.' });
         }
       } else {
-        res.status(403).json({ errorCode: 2, error: 'User does not exist.' });
+        res.status(403).json({ error: 'User does not exist.' });
       }
     })
     .catch(err => {
