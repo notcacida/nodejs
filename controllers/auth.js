@@ -14,6 +14,9 @@ let _validateEmail = email => {
   return re.test(String(email).toLowerCase());
 };
 
+// ACTIONS
+
+// Register
 exports.Register = (req, res) => {
   const userData = {
     name: req.body.name,
@@ -45,16 +48,8 @@ exports.Register = (req, res) => {
         res.send('error' + err);
       });
   } else {
-    res.json({ error: 'Email no good' });
+    res.status(400).json({ error: 'Email no good' });
   }
-
-  //   req.checkBody('name', 'Name is required').notEmpty();
-  //   req.check('email', 'Email is required.').notEmpty();
-  //   req.check('email', 'Email is not valid').isEmail();
-  //   req.check('password', 'Password is required').notEmpty();
-  //   req.check('password2', 'Passwords do not match').equals(req.body.password);
-
-  //   let errors = req.validationErrors();
 };
 
 exports.Login = (req, res, next) => {
@@ -83,7 +78,7 @@ exports.Login = (req, res, next) => {
           res.status(403).json({ error: 'Wrong password.' });
         }
       } else {
-        res.status(403).json({ error: 'User does not exist.' });
+        res.status(400).json({ error: 'User does not exist.' });
       }
     })
     .catch(err => {

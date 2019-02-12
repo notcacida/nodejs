@@ -1,5 +1,3 @@
-const jwt = require('jsonwebtoken');
-
 const Bid = require('../models/Bid');
 const User = require('../models/User');
 const Product = require('../models/product');
@@ -16,7 +14,9 @@ exports.checkFunds = (req, res, next) => {
       if (user.wallet >= product.bid_price) {
         next();
       } else {
-        res.status(403).json('User does not have enough credit to bid.');
+        res
+          .status(403)
+          .json({ error: 'User does not have enough credit to bid.' });
       }
     })
     .catch(err => {
@@ -51,42 +51,41 @@ let checkoutProduct = (prodId, buyerId) => {
 // Amount is withdrawn from user's wallet
 
 exports.addBid = (req, res, next) => {
-  // Check token: user can add bid only with a token
-  jwt.verify(req.token, 'secret', (err, authData) => {
-    console.log('auth data', authData);
-    if (err) {
-      res.sendStatus(403);
-    } else {
-      const userThatMadeBid = req.user;
-      const productId = req.body.product;
-      const charityId = req.body.charity;
-      const bid = new Bid({
-        user: userThatMadeBid,
-        product: productId,
-        charity: charityId
-      });
-      const historyBid = new BidHistorical({
-        user: userThatMadeBid,
-        product: productId,
-        charity: charityId
-      });
-      // Add bid to history
-      historyBid.save().catch(err => {
+  // Check requesting user
+  // This 'if' check is not needed actually, app never reacher addBid
+  // if there is no Authentification header on request, therefore no requesting user
+  if (typeof req.user === 'undefined') {
+    res.sendStatus(403);
+  } else {
+    const userThatMadeBid = req.user;
+    const productId = req.body.product;
+    const charityId = req.body.charity;
+    const bid = new Bid({
+      user: userThatMadeBid,
+      product: productId,
+      charity: charityId
+    });
+    const historyBid = new BidHistorical({
+      user: userThatMadeBid,
+      product: productId,
+      charity: charityId
+    });
+    // Add bid to history
+    historyBid.save().catch(err => {
+      console.log(err);
+    });
+
+    // Add bid to regular collection
+    bid
+      .save()
+      .then(bid => {
+        checkoutProduct(bid.product, userThatMadeBid);
+        res.json(bid);
+      })
+      .catch(err => {
         console.log(err);
       });
-
-      // Add bid to regular collection
-      bid
-        .save()
-        .then(bid => {
-          checkoutProduct(bid.product, userThatMadeBid);
-          res.json(bid);
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    }
-  });
+  }
 };
 
 // Get all bids
@@ -94,12 +93,12 @@ exports.getAllBids = (req, res, next) => {
   // If user is not logged in, don't show bids
   // req.user is defined only when request has a TOKEN attached.
   if (typeof req.user === 'undefined') {
-    res.json('Guest can not see all bids');
+    res.status(403).json({ error: 'Guest can not see all bids' });
   } else if (req.user.role === 'admin') {
     // If user is admin, show all bids
     Bid.find()
       .then(bids => {
-        res.status(200).json(bids);
+        res.status(200).json({ bids: bids });
       })
       .catch(err => {
         console.log(err);
@@ -110,7 +109,7 @@ exports.getAllBids = (req, res, next) => {
       user: req.user._id
     })
       .then(bids => {
-        res.status(200).json(bids);
+        res.status(200).json({ bids: bids });
       })
       .catch(err => {
         console.log(err);
@@ -122,15 +121,17 @@ exports.getAllBids = (req, res, next) => {
 // If user is not admin, don't show historical bids
 exports.getHistoricalBids = (req, res, next) => {
   if (typeof req.user === 'undefined') {
-    res.json('Guest can not see historical bids');
+    res.status(403).json({ error: 'Guest can not see historical bids' });
   } else if (req.user.role === 'admin') {
     BidHistorical.find()
       .then(bids => {
-        res.status(200).json(bids);
+        res.status(200).json({ bids: bids });
       })
       .catch(err => {
         console.log(err);
       });
+  } else {
+    res.status(403).json({ error: 'You do not have the required credentials' });
   }
 };
 
@@ -145,7 +146,7 @@ exports.getBidsOfUser = (req, res, next) => {
       })
       .catch(err => {
         console.log(err);
-        res.status(404).json('404 Not found');
+        res.sendStatus(404);
       });
   };
   // Guest, don't show anything
@@ -153,12 +154,12 @@ exports.getBidsOfUser = (req, res, next) => {
   // Regular user, only show his bids if he wants them
   const userId = req.params.userId;
   if (typeof req.user === 'undefined') {
-    res.json('Please login first');
+    res.status(403).json({ error: 'Please login first' });
   } else if (req.user.role === 'admin') {
     showBids();
   } else if (req.user.role === 'user') {
     if (userId.toString() !== req.user._id.toString()) {
-      res.status(403).json('You can only see your own bids!');
+      res.status(403).json({ error: 'You can only see your own bids!' });
     } else {
       showBids();
     }
@@ -172,21 +173,23 @@ exports.getBidsOfUser = (req, res, next) => {
 // Admin, show everything
 exports.getBidsOnProduct = (req, res, next) => {
   if (typeof req.user === 'undefined') {
-    res.json('Guest cannot see bids on a product');
+    res.status(403).json({ error: 'Guest cannot see bids on a product' });
   } else if (req.user.role === 'admin') {
     const prodId = req.params.productId;
     Bid.find({
       product: prodId
     })
-      .then(result => {
-        res.json(result);
+      .then(bids => {
+        res.json({ bids: bids });
       })
       .catch(err => {
         console.log(err);
-        res.status(404).json('404 Not found');
+        res.sendStatus(404);
       });
   } else if (req.user.role === 'user') {
-    res.json('Regular users cannot see all bids on a product');
+    res
+      .status(403)
+      .json({ error: 'Regular users cannot see all bids on a product' });
   }
 };
 
@@ -198,15 +201,15 @@ exports.getBidsOnProduct = (req, res, next) => {
 exports.getBid = (req, res, next) => {
   const bidId = req.params.bidId;
   if (typeof req.user === 'undefined') {
-    res.json('Guest cannot see bids');
+    res.status(403).json({ error: 'Guest cannot see bids' });
   } else if (req.user.role === 'admin') {
     Bid.findById(bidId)
       .then(bid => {
-        res.json(bid);
+        res.json({ bids: bid });
       })
       .catch(err => {
         console.log(err);
-        res.status(404).json('404 Not found');
+        res.sendStatus(404);
       });
   } else if (req.user.role === 'user') {
     Bid.find({
@@ -214,7 +217,7 @@ exports.getBid = (req, res, next) => {
       user: req.user._id
     })
       .then(bid => {
-        res.json(bid);
+        res.json({ bids: bid });
       })
       .catch(err => {
         console.log(err);
@@ -238,17 +241,17 @@ exports.deleteBid = (req, res, next) => {
   const bidId = req.params.bidId;
   // Guest cannot delete bids
   if (typeof req.user === 'undefined') {
-    res.json('Guest cannot delete bids');
+    res.status(403).json({ error: 'Guest cannot delete bids' });
   } else if (req.user.role === 'admin') {
     // Admin can delete any bid
     Bid.findByIdAndRemove(bidId)
       .then(bid => {
-        res.json(bid);
+        res.json({ bids: bid });
         refundUser(bid.product, bid.user);
       })
       .catch(err => {
         console.log(err);
-        res.status(404);
+        res.sendStatus(404);
       });
   } else if (req.user.role === 'user') {
     // User can only delete his bid
@@ -258,9 +261,9 @@ exports.deleteBid = (req, res, next) => {
     })
       .then(result => {
         if (result) {
-          res.json(result);
+          res.json({ bids: result });
         } else {
-          res.json('This user cannot delete this bid');
+          res.status(403).json({ error: 'This user cannot delete this bid' });
         }
       })
       .catch(err => {

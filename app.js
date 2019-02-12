@@ -35,12 +35,14 @@ app.use(verifyUser, (req, res, next) => {
   jwt.verify(req.token, 'secret', (err, authData) => {
     if (err) {
       // Action done as guest
+      console.log('Action is done as guest');
       next();
     } else {
       // Actions done as logged in user
       User.findById(authData.id)
         .then(user => {
           req.user = user;
+          console.log('Action is done by user: ', req.user);
           next();
         })
         .catch(err => console.log(err));
