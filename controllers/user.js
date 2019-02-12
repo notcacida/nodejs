@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+
 const User = require('../models/User');
 const Bid = require('../models/Bid');
 
@@ -109,16 +111,28 @@ exports.editUser = (req, res, next) => {
   } else if (req.user.role === 'admin') {
     User.findById(userId)
       .then(user => {
-        user.email = updatedEmail || user.email;
-        user.password = updatedPassword || user.password;
-        user.name = updatedName || user.name;
-        user.role = updatedRole || user.role;
-        user.wallet = updatedWallet || user.wallet;
-        user.save();
-        return user;
-      })
-      .then(user => {
-        res.json({ users: user });
+        // Aux function, used when updating
+        let updateUserInfo = () => {
+          user.email = updatedEmail || user.email;
+          user.name = updatedName || user.name;
+          user.role = updatedRole || user.role;
+          user.wallet = updatedWallet || user.wallet;
+        };
+        // IF admin gave a new password,
+        // create a hashed value of the updated password
+        // ELSE do the update without a new password
+        if (typeof updatedPassword !== 'undefined') {
+          bcrypt.hash(updatedPassword, 10, (err, hash) => {
+            user.password = hash;
+            updateUserInfo();
+            user.save();
+            res.json({ users: user });
+          });
+        } else {
+          updateUserInfo();
+          user.save();
+          res.json({ users: user });
+        }
       })
       .catch(err => {
         console.log(err);
@@ -128,17 +142,29 @@ exports.editUser = (req, res, next) => {
     if (req.user._id.toString() !== userId.toString()) {
       res.status(403).json({ error: 'You can only edit your own user' });
     } else {
-      // User edits his own user, can only edit his email and name
-      // Remember to allow editing own password
+      // User edits his own user, can edit his email, password & name
       User.findById(userId)
         .then(user => {
-          user.email = updatedEmail || user.email;
-          user.name = updatedName || user.name;
-          user.save();
-          return user;
-        })
-        .then(user => {
-          res.json({ users: user });
+          // Aux function, used when updating
+          let updateUserInfo = () => {
+            user.email = updatedEmail || user.email;
+            user.name = updatedName || user.name;
+          };
+          // IF user gave a new password,
+          // create a hashed value of the updated password
+          // ELSE do the update without a new password
+          if (typeof updatedPassword !== 'undefined') {
+            bcrypt.hash(updatedPassword, 10, (err, hash) => {
+              user.password = hash;
+              updateUserInfo();
+              user.save();
+              res.json({ users: user });
+            });
+          } else {
+            updateUserInfo();
+            user.save();
+            res.json({ users: user });
+          }
         })
         .catch(err => {
           console.log(err);
