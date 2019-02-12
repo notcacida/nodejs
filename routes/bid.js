@@ -14,6 +14,8 @@ const verifyToken = require('../util/verifyToken');
 // delete bid
 
 // Add a bid
+// Verify token will only let user continue if an Authorization header is sent with request
+// Otherwise, get a 403
 router.post('/', verifyToken, bidController.checkFunds, bidController.addBid);
 
 // Get all bids

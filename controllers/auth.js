@@ -80,10 +80,10 @@ exports.Login = (req, res, next) => {
           next();
         } else {
           //pass do not match
-          res.json({ error: 'Wrong password' });
+          res.status(403).json({ errorCode: 1, error: 'Wrong password.' });
         }
       } else {
-        res.json({ error: 'User does not exists' });
+        res.status(403).json({ errorCode: 2, error: 'User does not exist.' });
       }
     })
     .catch(err => {
