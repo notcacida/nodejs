@@ -29,9 +29,7 @@ exports.addUser = (req, res, next) => {
         console.log(err);
       });
   } else {
-    res
-      .status(403)
-      .json({ error: 'Invalid credentials for editing other users' });
+    res.status(403).json({ error: 'Invalid credentials for adding users' });
   }
 };
 
