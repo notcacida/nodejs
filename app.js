@@ -5,6 +5,15 @@ const cookieParser = require('cookie-parser');
 const createError = require('http-errors');
 const expressValidator = require('express-validator');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const async = require('async');
+const passport = require('passport');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcrypt-nodejs');
+const flash = require('express-flash');
 
 // Routes
 const indexRouter = require('./routes/index');
@@ -13,6 +22,7 @@ const bidsRouter = require('./routes/bid');
 const productRouter = require('./routes/product');
 const charityRouter = require('./routes/charity');
 const authRouter = require('./routes/auth');
+const forgotRouter = require('./routes/forgot');
 
 const verifyUser = require('./util/verifyUser');
 
@@ -26,6 +36,10 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session({ secret: 'session secret key' }));
+app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
 mongoose.set('useFindAndModify', false);
 
 // Login actual user before using app
@@ -55,6 +69,7 @@ app.use('/bids', bidsRouter);
 app.use('/products', productRouter);
 app.use('/charities', charityRouter);
 app.use('/auth', authRouter);
+app.use('/forgot', forgotRouter);
 // Routes are protected in respective controller files
 
 // 404 page
