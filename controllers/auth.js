@@ -76,7 +76,7 @@ exports.Login = (req, res, next) => {
           let token = jwt.sign(payload, process.env.SECRET_KEY, {
             expiresIn: 1440
           });
-          res.send(token);
+          res.send({ token: token });
           next();
         } else {
           //pass do not match
