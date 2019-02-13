@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const flash = require('flash');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 
@@ -22,6 +21,9 @@ let transporter = nodemailer.createTransport(config);
 
 //Prepare Reset password
 exports.resetPassword = (req, res, next) => {
+  // Use this to send the corect link over email, regardless of where the app is hosted
+  let rootUrl = req.protocol + '://' + req.get('host');
+
   crypto.randomBytes(32, (err, buffer) => {
     if (err) {
       console.log(err);
@@ -48,8 +50,9 @@ exports.resetPassword = (req, res, next) => {
           text: 'Hello, ',
           html: `
                   <p>You requested a password reset</p>
-                  <p>Click this <a href = "http://localhost:3000/reset/password/${token}">link</a> to set a new password..... http://localhost:3000/reset/password/${token}</p>
-                  `
+                  <p>Click this <a href = "${rootUrl}/reset/password/${token}">link</a> to set a new password.....
+                  ${rootUrl}/reset/password/${token}</p>
+                `
         };
         res.redirect('/');
         transporter.sendMail(mailOptions);

@@ -12,8 +12,9 @@ exports.addProduct = (req, res) => {
     product.bid_price =
       Math.round((req.body.price * 0.02 + 0.00001) * 100) / 100;
     Product.addProduct(product, (err, book) => {
-      if (err) throw err;
-      res.json({ products: product });
+      if (err) {
+        res.sendStatus(400);
+      } else res.json({ products: product });
     });
   } else {
     res.status(403).json({ error: 'Invalid credentials for adding a product' });
@@ -23,8 +24,9 @@ exports.addProduct = (req, res) => {
 // Get all products
 exports.getAllProducts = (req, res, next) => {
   Product.getProducts((err, products) => {
-    if (err) throw err;
-    res.json({ products: products });
+    if (err) {
+      res.status(500).json({ errors: 'Something went wrong.' });
+    } else res.json({ products: products });
   });
 };
 
@@ -32,10 +34,8 @@ exports.getAllProducts = (req, res, next) => {
 exports.getProductById = (req, res) => {
   Product.getProductById(req.params._id, (err, product) => {
     if (err) {
-      res.sendStatus(404);
-      throw err;
-    }
-    res.json({ products: product });
+      res.status(404).json({ errors: 'Product not found.' });
+    } else res.json({ products: product });
   });
 };
 
@@ -60,14 +60,10 @@ exports.putProdById = (req, res, next) => {
             Math.round((uPrice * 0.02 + 0.00001) * 100) / 100 ||
             Math.round((product.price * 0.02 + 0.00001) * 100) / 100);
         product.save();
-        return product;
-      })
-      .then(product => {
         res.send({ products: product });
       })
-      .catch(err => {
-        console.log(err);
-        res.sendStatus(404);
+      .catch(() => {
+        res.status(404).json({ errors: 'Product not found.' });
       });
   } else {
     res
@@ -85,9 +81,8 @@ exports.getProductsOfCharity = (req, res, next) => {
     .then(products => {
       res.send({ products: products });
     })
-    .catch(err => {
-      console.log(err);
-      res.sendStatus(404);
+    .catch(() => {
+      res.status(404).json({ errors: 'Charity not found.' });
     });
 };
 
@@ -117,9 +112,8 @@ exports.deleteById = (req, res, next) => {
         deleteBidsofProduct(productId);
         res.json({ products: product });
       })
-      .catch(err => {
-        console.log(err);
-        res.sendStatus(404);
+      .catch(() => {
+        res.status(404).json({ errors: 'Product not found.' });
       });
   } else {
     res

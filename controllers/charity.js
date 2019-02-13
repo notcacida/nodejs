@@ -8,8 +8,9 @@ exports.postCharity = (req, res) => {
   if (req.user.role === 'admin') {
     const charity = req.body;
     Charity.addCharity(charity, (err, charity) => {
-      if (err) throw err;
-      res.json({ charities: charity });
+      if (err) {
+        res.sendStatus(400);
+      } else res.json({ charities: charity });
     });
   } else {
     res.status(403).json({ error: 'Invalid credentials for adding a charity' });
@@ -19,8 +20,9 @@ exports.postCharity = (req, res) => {
 // Get all charities
 exports.getCharities = (req, res) => {
   Charity.getCharities((err, charities) => {
-    if (err) throw err;
-    res.json({ charities: charities });
+    if (err) {
+      res.status(500).json({ errors: 'Something went wrong.' });
+    } else res.json({ charities: charities });
   });
 };
 
@@ -28,10 +30,8 @@ exports.getCharities = (req, res) => {
 exports.getCharityPerId = (req, res) => {
   Charity.getCharityById(req.params._id, (err, charity) => {
     if (err) {
-      res.sendStatus(404);
-      throw err;
-    }
-    res.json({ charities: charity });
+      res.status(404).json({ errors: 'Charity not found.' });
+    } else res.json({ charities: charity });
   });
 };
 
@@ -52,9 +52,8 @@ exports.putCharityById = (req, res) => {
       .then(charity => {
         res.send({ charities: charity });
       })
-      .catch(err => {
-        console.log(err);
-        res.sendStatus(404);
+      .catch(() => {
+        res.status(404).json({ errors: 'Charity not found.' });
       });
   } else {
     res
@@ -105,9 +104,8 @@ exports.deleteCharity = (req, res, next) => {
         deleteProductsOfCharity(charityId);
         res.json({ charities: charity });
       })
-      .catch(err => {
-        console.log(err);
-        res.sendStatus(404);
+      .catch(() => {
+        res.status(404).json({ errors: 'Charity not found.' });
       });
   } else {
     res
