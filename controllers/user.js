@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+
 const User = require('../models/User');
 const Bid = require('../models/Bid');
 
@@ -5,31 +7,33 @@ const Bid = require('../models/Bid');
 
 // Add a user
 exports.addUser = (req, res, next) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const name = req.body.name;
+  const role = req.body.role;
+  const wallet = req.body.wallet;
   // Check requesting user: only admin can add other users on this route: POST on /users
   // Other route for adding users (/auth/register) will of course, not be protected.
   if (req.user.role === 'admin') {
-    const email = req.body.email;
-    const password = req.body.password;
-    const name = req.body.name;
-    const role = req.body.role;
-    const wallet = req.body.wallet;
-    const user = new User({
-      email: email,
-      password: password,
-      name: name,
-      role: role,
-      wallet: wallet
-    });
-    user
-      .save()
-      .then(result => {
-        res.json(result);
-      })
-      .catch(err => {
-        console.log(err);
+    bcrypt.hash(password, 10, (err, hash) => {
+      const user = new User({
+        email: email,
+        password: hash,
+        name: name,
+        role: role,
+        wallet: wallet
       });
-  } else if (req.user.role === 'user') {
-    res.status(403).json('Regular user not authorized to add other users');
+      user
+        .save()
+        .then(result => {
+          res.json({ users: result });
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    });
+  } else {
+    res.status(403).json({ error: 'Invalid credentials for adding users' });
   }
 };
 
@@ -43,7 +47,7 @@ exports.getAllUsers = (req, res, next) => {
   } else if (req.user.role === 'admin') {
     User.find()
       .then(users => {
-        res.json(users);
+        res.json({ users: users });
       })
       .catch(err => {
         console.log(err);
@@ -53,7 +57,7 @@ exports.getAllUsers = (req, res, next) => {
       _id: req.user._id
     })
       .then(users => {
-        res.json(users);
+        res.json({ users: users });
       })
       .catch(err => {
         console.log(err);
@@ -70,11 +74,11 @@ exports.getUser = (req, res, next) => {
   let showUser = () => {
     User.findById(userId)
       .then(user => {
-        res.json(user);
+        res.json({ users: user });
       })
       .catch(err => {
         console.log(err);
-        res.status(404).json('404 Not found');
+        res.sendStatus(404);
       });
   };
   if (typeof req.user === 'undefined') {
@@ -106,27 +110,69 @@ exports.editUser = (req, res, next) => {
 
   if (typeof req.user === 'undefined') {
     res.status(403).json({ error: 'Guest cannot edit users' });
-  } else if (
-    req.user.role === 'admin' ||
-    req.user._id.toString() === userId.toString()
-  ) {
+  } else if (req.user.role === 'admin') {
     User.findById(userId)
       .then(user => {
-        user.email = updatedEmail || user.email;
-        user.password = updatedPassword || user.password;
-        user.name = updatedName || user.name;
-        user.role = updatedRole || user.role;
-        user.wallet = updatedWallet || user.wallet;
-        user.save();
-        return user;
-      })
-      .then(user => {
-        res.json(user);
+        // Aux function, used when updating
+        let updateUserInfo = () => {
+          user.email = updatedEmail || user.email;
+          user.name = updatedName || user.name;
+          user.role = updatedRole || user.role;
+          user.wallet = updatedWallet || user.wallet;
+        };
+        // IF admin gave a new password,
+        // create a hashed value of the updated password
+        // ELSE do the update without a new password
+        if (typeof updatedPassword !== 'undefined') {
+          bcrypt.hash(updatedPassword, 10, (err, hash) => {
+            user.password = hash;
+            updateUserInfo();
+            user.save();
+            res.json({ users: user });
+          });
+        } else {
+          updateUserInfo();
+          user.save();
+          res.json({ users: user });
+        }
       })
       .catch(err => {
         console.log(err);
-        res.status(404).json('404 Not found');
+        res.sendStatus(404);
       });
+  } else if (req.user.role === 'user') {
+    if (req.user._id.toString() !== userId.toString()) {
+      res.status(403).json({ error: 'You can only edit your own user' });
+    } else {
+      // User edits his own user, can edit his email, password & name
+      User.findById(userId)
+        .then(user => {
+          // Aux function, used when updating
+          let updateUserInfo = () => {
+            user.email = updatedEmail || user.email;
+            user.name = updatedName || user.name;
+          };
+          // IF user gave a new password,
+          // create a hashed value of the updated password
+          // ELSE do the update without a new password
+          if (typeof updatedPassword !== 'undefined') {
+            bcrypt.hash(updatedPassword, 10, (err, hash) => {
+              user.password = hash;
+              updateUserInfo();
+              user.save();
+              res.json({ users: user });
+            });
+          } else {
+            updateUserInfo();
+            user.save();
+            res.json({ users: user });
+          }
+        })
+        .catch(err => {
+          console.log(err);
+          res.sendStatus(404);
+        });
+    }
   } else {
     res.status(403).json({ error: 'Invalid credentials to edit a user' });
   }
@@ -138,7 +184,7 @@ let deleteBidsOfUser = userId => {
     user: userId
   })
     .then(result => {
-      console.log(result);
+      console.log('Bids deleted', result);
     })
     .catch(err => {
       console.log(err);
@@ -155,17 +201,18 @@ exports.deleteUser = (req, res, next) => {
     User.findByIdAndRemove(userId)
       .then(user => {
         deleteBidsOfUser(user._id);
-        res.json(user);
+        res.json({ users: user });
       })
       .catch(err => {
         console.log(err);
-        res.status(404).send('404 Not found');
+        res.sendStatus(404);
       });
   } else {
     res
       .status(403)
       .json({ error: 'You do not have the credentials to delete users' });
   }
+  // We may allow users to delete their own account, but it's OK sans this feature
 };
 
 // Add money to wallet
@@ -183,11 +230,11 @@ exports.addMoney = (req, res, next) => {
       .then(user => {
         user.wallet = user.wallet + addition;
         user.save();
-        res.json(user);
+        res.json({ users: user });
       })
       .catch(err => {
         console.log(err);
-        res.status(404).send('404 Not found');
+        res.sendStatus(404);
       });
   }
 };

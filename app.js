@@ -60,8 +60,9 @@ app.use('/auth', authRouter);
 // Routes are protected in respective controller files
 
 // 404 page
-app.use('*', function(req, res) {
+app.use('*', function(req, res, next) {
   res.status(404);
+  next();
 });
 // 404 responses for composite routes are handled in each route's respective controller
 

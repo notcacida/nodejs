@@ -55,7 +55,7 @@ exports.addBid = (req, res, next) => {
   // This 'if' check is not needed actually, app never reacher addBid
   // if there is no Authentification header on request, therefore no requesting user
   if (typeof req.user === 'undefined') {
-    res.sendStatus(403);
+    res.sendStatus(403).json({ error: 'Guest can not bid' });
   } else {
     const userThatMadeBid = req.user;
     const productId = req.body.product;
@@ -80,7 +80,7 @@ exports.addBid = (req, res, next) => {
       .save()
       .then(bid => {
         checkoutProduct(bid.product, userThatMadeBid);
-        res.json(bid);
+        res.json({ bids: bid });
       })
       .catch(err => {
         console.log(err);
@@ -98,7 +98,7 @@ exports.getAllBids = (req, res, next) => {
     // If user is admin, show all bids
     Bid.find()
       .then(bids => {
-        res.status(200).json({ bids: bids });
+        res.json({ bids: bids });
       })
       .catch(err => {
         console.log(err);
@@ -109,7 +109,7 @@ exports.getAllBids = (req, res, next) => {
       user: req.user._id
     })
       .then(bids => {
-        res.status(200).json({ bids: bids });
+        res.json({ bids: bids });
       })
       .catch(err => {
         console.log(err);
@@ -125,7 +125,7 @@ exports.getHistoricalBids = (req, res, next) => {
   } else if (req.user.role === 'admin') {
     BidHistorical.find()
       .then(bids => {
-        res.status(200).json({ bids: bids });
+        res.json({ bids: bids });
       })
       .catch(err => {
         console.log(err);
@@ -141,8 +141,8 @@ exports.getBidsOfUser = (req, res, next) => {
     Bid.find({
       user: userId
     })
-      .then(result => {
-        res.json(result);
+      .then(bids => {
+        res.json({ bids: bids });
       })
       .catch(err => {
         console.log(err);
@@ -275,13 +275,19 @@ exports.deleteBid = (req, res, next) => {
 exports.refundUser = refundUser;
 
 // Delete all bids
-
+// Only admin can delete all bids
 exports.deleteAll = (req, res, next) => {
-  Bid.deleteMany()
-    .then(() => {
-      res.json('Deleted all bids');
-    })
-    .catch(err => {
-      console.log(err);
-    });
+  if (req.user.role === 'admin') {
+    Bid.deleteMany()
+      .then(() => {
+        res.json('Deleted all bids');
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  } else {
+    res
+      .status(403)
+      .json({ error: 'Credentials invalid for deleting all bids' });
+  }
 };
