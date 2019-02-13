@@ -22,7 +22,7 @@ const bidsRouter = require('./routes/bid');
 const productRouter = require('./routes/product');
 const charityRouter = require('./routes/charity');
 const authRouter = require('./routes/auth');
-const forgotRouter = require('./routes/forgot');
+const resetRouter = require('./routes/reset');
 
 const verifyUser = require('./util/verifyUser');
 
@@ -36,10 +36,10 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(session({ secret: 'session secret key' }));
+//app.use(session({ secret: 'session secret key' }));
 app.use(flash());
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.initialize());
+// app.use(passport.session());
 mongoose.set('useFindAndModify', false);
 
 // Login actual user before using app
@@ -69,7 +69,7 @@ app.use('/bids', bidsRouter);
 app.use('/products', productRouter);
 app.use('/charities', charityRouter);
 app.use('/auth', authRouter);
-app.use('/forgot', forgotRouter);
+app.use('/reset', resetRouter);
 // Routes are protected in respective controller files
 
 // 404 page
