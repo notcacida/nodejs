@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
 
-let User = require('../models/User');
-const authControler = require('../controllers/auth');
+const authController = require('../controllers/auth');
+let verifyToken = require('../util/verifyToken');
 
 //Register process
-
-router.post('/register', authControler.Register);
-router.post('/login', authControler.Login);
+router.post('/register', authController.Register);
+// Login
+router.post('/login', authController.Login);
+// Logout
+router.post('/logout', verifyToken, authController.Logout);
 
 module.exports = router;

@@ -3,33 +3,46 @@ const router = express.Router();
 
 const bidController = require('../controllers/bid');
 const verifyToken = require('../util/verifyToken');
+const verifyLoggedIn = require('../util/VerifyLoggedIn');
 
 // Add a bid
 // Verify token will only let user continue if an Authorization header is sent with request
 // Otherwise, get a 403
 // This token is checked further in the controller
 
-router.post('/', verifyToken, bidController.checkFunds, bidController.addBid);
+// VerifyLoggedIn will only let user continue if his token has not been logged-out in the meantime
+
+router.post(
+  '/',
+  verifyToken,
+  verifyLoggedIn,
+  bidController.checkFunds,
+  bidController.addBid
+);
 
 // Get all bids
-router.get('/', bidController.getAllBids);
+router.get('/', verifyLoggedIn, bidController.getAllBids);
 
 // Get historical bids
-router.get('/historical', bidController.getHistoricalBids);
+router.get('/historical', verifyLoggedIn, bidController.getHistoricalBids);
 
 // Get one bid
-router.get('/bid/:bidId', bidController.getBid);
+router.get('/bid/:bidId', verifyLoggedIn, bidController.getBid);
 
 // Get bids of user
-router.get('/user/:userId', bidController.getBidsOfUser);
+router.get('/user/:userId', verifyLoggedIn, bidController.getBidsOfUser);
 
 // Get bids on product
-router.get('/product/:productId', bidController.getBidsOnProduct);
+router.get(
+  '/product/:productId',
+  verifyLoggedIn,
+  bidController.getBidsOnProduct
+);
 
 // Delete bid
-router.delete('/:bidId', bidController.deleteBid);
+router.delete('/:bidId', verifyLoggedIn, bidController.deleteBid);
 
 // Delete all bids
-router.delete('/', verifyToken, bidController.deleteAll);
+router.delete('/', verifyToken, verifyLoggedIn, bidController.deleteAll);
 
 module.exports = router;
