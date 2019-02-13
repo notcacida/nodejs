@@ -5,6 +5,8 @@ const express = require('express');
 const users = express.Router();
 
 let User = require('../models/User');
+let InvalidToken = require('../models/Invalid_token');
+
 users.use(cors());
 
 process.env.SECRET_KEY = 'secret';
@@ -82,5 +84,23 @@ exports.Login = (req, res, next) => {
     })
     .catch(err => {
       res.send('error' + err);
+    });
+};
+
+// Logout
+exports.Logout = (req, res, next) => {
+  // save this token to a mongoDB collection of blacklisted tokens
+  // Upon every request, the token passed by the client is checked against these blacklisted tokens
+  // If it is in the list, that means the user has logged out at some point, so access should be denied
+  const tokenToBlacklist = new InvalidToken({
+    token: req.token
+  });
+  tokenToBlacklist
+    .save()
+    .then(() => {
+      res.json({ status: 'You have successfully logged out!' });
+    })
+    .catch(err => {
+      console.log(err);
     });
 };
