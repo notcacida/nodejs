@@ -25,7 +25,10 @@ const userSchema = new Schema({
     type: Number,
     required: false,
     default: 0
-  }
+  },
+  //token will exists only if the user request reset pass
+  resetToken: String,
+  resetTokenExpiration: Date
 });
 
 module.exports = mongoose.model('User', userSchema);
