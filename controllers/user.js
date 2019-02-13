@@ -7,29 +7,31 @@ const Bid = require('../models/Bid');
 
 // Add a user
 exports.addUser = (req, res, next) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const name = req.body.name;
+  const role = req.body.role;
+  const wallet = req.body.wallet;
   // Check requesting user: only admin can add other users on this route: POST on /users
   // Other route for adding users (/auth/register) will of course, not be protected.
   if (req.user.role === 'admin') {
-    const email = req.body.email;
-    const password = req.body.password;
-    const name = req.body.name;
-    const role = req.body.role;
-    const wallet = req.body.wallet;
-    const user = new User({
-      email: email,
-      password: password,
-      name: name,
-      role: role,
-      wallet: wallet
-    });
-    user
-      .save()
-      .then(result => {
-        res.json({ users: result });
-      })
-      .catch(err => {
-        console.log(err);
+    bcrypt.hash(password, 10, (err, hash) => {
+      const user = new User({
+        email: email,
+        password: hash,
+        name: name,
+        role: role,
+        wallet: wallet
       });
+      user
+        .save()
+        .then(result => {
+          res.json({ users: result });
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    });
   } else {
     res.status(403).json({ error: 'Invalid credentials for adding users' });
   }
