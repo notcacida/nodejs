@@ -3,7 +3,7 @@ const router = express.Router();
 
 const bidController = require('../controllers/bid');
 const verifyToken = require('../util/verifyToken');
-const verifyLoggedIn = require('../util/VerifyLoggedIn');
+const verifyLoggedIn = require('../util/verifyLoggedIn');
 
 // Add a bid
 // Verify token will only let user continue if an Authorization header is sent with request

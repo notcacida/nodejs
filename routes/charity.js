@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const verifyToken = require('../util/verifyToken');
-const verifyLoggedIn = require('../util/VerifyLoggedIn');
+const verifyLoggedIn = require('../util/verifyLoggedIn');
 
 var charityController = require('../controllers/charity');
 
