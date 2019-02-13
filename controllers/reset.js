@@ -33,7 +33,6 @@ exports.resetPassword = (req, res, next) => {
       .then(user => {
         if (!user) {
           console.log('BAD USER');
-          req.flash('error', 'No account associated the email');
           return res.redirect('/');
         } else {
           user.resetToken = token;
@@ -43,14 +42,14 @@ exports.resetPassword = (req, res, next) => {
       })
       .then(result => {
         let mailOptions = {
-          from: '"Teodor 👻" <giveawin@gmail.com>', // sender address
-          to: req.body.email, // list of receivers
-          subject: 'Password Reset ✔', // Subject line
-          text: 'Hello, ', // plain text body
+          from: '"Teodor 👻" <giveawin@gmail.com>',
+          to: req.body.email,
+          subject: 'Password Reset ✔',
+          text: 'Hello, ',
           html: `
                   <p>You requested a password reset</p>
                   <p>Click this <a href = "http://localhost:3000/reset/password/${token}">link</a> to set a new password..... http://localhost:3000/reset/password/${token}</p>
-                  ` // html body
+                  `
         };
         res.redirect('/');
         transporter.sendMail(mailOptions);
@@ -67,14 +66,6 @@ exports.afterResetPassword = (req, res, next) => {
   console.log(token);
   User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
     .then(user => {
-      //   let message = req.flash('error');
-
-      //   if (message.length > 0) {
-      //     message = message[0];
-      //   } else {
-      //     message = null;
-      //   }
-      //user.password = req.body.password;
       bcrypt.hash(req.body.password, 10, (err, hash) => {
         user.password = hash;
         user.resetPasswordToken = undefined;

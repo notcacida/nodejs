@@ -2,18 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
-const createError = require('http-errors');
 const expressValidator = require('express-validator');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const nodemailer = require('nodemailer');
-const async = require('async');
-const passport = require('passport');
-const bodyParser = require('body-parser');
-const session = require('express-session');
-const LocalStrategy = require('passport-local').Strategy;
-const bcrypt = require('bcrypt-nodejs');
-const flash = require('express-flash');
 
 // Routes
 const indexRouter = require('./routes/index');
@@ -36,10 +26,6 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-//app.use(session({ secret: 'session secret key' }));
-app.use(flash());
-// app.use(passport.initialize());
-// app.use(passport.session());
 mongoose.set('useFindAndModify', false);
 
 // Login actual user before using app

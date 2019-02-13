@@ -5,5 +5,5 @@ var resetController = require('../controllers/reset');
 
 // Reset Password
 router.post('/password', resetController.resetPassword);
-router.get('/password/:token', resetController.afterResetPassword);
+router.post('/password/:token', resetController.afterResetPassword);
 module.exports = router;
