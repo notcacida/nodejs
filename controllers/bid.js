@@ -3,7 +3,7 @@ const User = require('../models/User');
 const Product = require('../models/product');
 const BidHistorical = require('../models/Bid_history');
 
-// Order is:    Check funds -> add bid -> checkout product -> pay for product
+// Order is:    Check funds -> add bid -> flag product -> checkout product -> pay for product
 
 // Check if user has enough funds: used as middleware in ROUTES: bid.js
 exports.checkFunds = (req, res, next) => {
@@ -43,11 +43,29 @@ let checkoutProduct = (prodId, buyerId) => {
   });
 };
 
+// Flag product: increment its' bid counter
+let flagProduct = (prodId, addedBid) => {
+  Product.findById(prodId)
+    .then(product => {
+      if (addedBid) {
+        product.bid_counter++;
+        product.save();
+      } else {
+        product.bid_counter--;
+        product.save();
+      }
+    })
+    .catch(() => {
+      res.status(404).json({ errors: 'Product not found' });
+    });
+};
+
 // MAIN ACTIONS
 
 // Add a bid
 // Bid is added to historical collection READ_ONLY
 // Bid is added to regular collection
+// Product's bid counter is increased
 // Amount is withdrawn from user's wallet
 
 exports.addBid = (req, res, next) => {
@@ -79,6 +97,12 @@ exports.addBid = (req, res, next) => {
     bid
       .save()
       .then(bid => {
+        // Increase bid counter on product
+        flagProduct(bid.product, true);
+        return bid;
+      })
+      .then(bid => {
+        // Start payment process
         checkoutProduct(bid.product, userThatMadeBid);
         res.json({ bids: bid });
       })
@@ -243,6 +267,11 @@ exports.deleteBid = (req, res, next) => {
     // Admin can delete any bid
     Bid.findByIdAndRemove(bidId)
       .then(bid => {
+        // Decrease bid counter on product
+        flagProduct(bid.product, false);
+        return bid;
+      })
+      .then(bid => {
         res.json({ bids: bid });
         refundUser(bid.product, bid.user);
       })
@@ -255,6 +284,11 @@ exports.deleteBid = (req, res, next) => {
       _id: bidId,
       user: req.user._id
     })
+      .then(bid => {
+        // Decrease bid counter on product
+        flagProduct(bid.product, false);
+        return bid;
+      })
       .then(result => {
         if (result) {
           res.json({ bids: result });
