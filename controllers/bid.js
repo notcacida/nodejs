@@ -71,8 +71,8 @@ exports.addBid = (req, res, next) => {
       charity: charityId
     });
     // Add bid to history
-    historyBid.save().catch(err => {
-      console.log(err);
+    historyBid.save().catch(() => {
+      res.status(500).json({ errors: 'Something went wrong.' });
     });
 
     // Add bid to regular collection
@@ -82,8 +82,8 @@ exports.addBid = (req, res, next) => {
         checkoutProduct(bid.product, userThatMadeBid);
         res.json({ bids: bid });
       })
-      .catch(err => {
-        console.log(err);
+      .catch(() => {
+        res.status(500).json({ errors: 'Something went wrong.' });
       });
   }
 };
@@ -100,8 +100,8 @@ exports.getAllBids = (req, res, next) => {
       .then(bids => {
         res.json({ bids: bids });
       })
-      .catch(err => {
-        console.log(err);
+      .catch(() => {
+        res.status(500).json({ errors: 'Something went wrong.' });
       });
   } else if (req.user.role === 'user') {
     // If user is user, show his bids
@@ -111,8 +111,8 @@ exports.getAllBids = (req, res, next) => {
       .then(bids => {
         res.json({ bids: bids });
       })
-      .catch(err => {
-        console.log(err);
+      .catch(() => {
+        res.status(500).json({ errors: 'Something went wrong.' });
       });
   }
 };
@@ -127,8 +127,8 @@ exports.getHistoricalBids = (req, res, next) => {
       .then(bids => {
         res.json({ bids: bids });
       })
-      .catch(err => {
-        console.log(err);
+      .catch(() => {
+        res.status(500).json({ errors: 'Something went wrong.' });
       });
   } else {
     res.status(403).json({ error: 'You do not have the required credentials' });
@@ -144,9 +144,8 @@ exports.getBidsOfUser = (req, res, next) => {
       .then(bids => {
         res.json({ bids: bids });
       })
-      .catch(err => {
-        console.log(err);
-        res.sendStatus(404);
+      .catch(() => {
+        res.status(404).json({ errors: 'User not found.' });
       });
   };
   // Guest, don't show anything
@@ -182,9 +181,8 @@ exports.getBidsOnProduct = (req, res, next) => {
       .then(bids => {
         res.json({ bids: bids });
       })
-      .catch(err => {
-        console.log(err);
-        res.sendStatus(404);
+      .catch(() => {
+        res.status(404).json({ errors: 'Product not found.' });
       });
   } else if (req.user.role === 'user') {
     res
@@ -207,9 +205,8 @@ exports.getBid = (req, res, next) => {
       .then(bid => {
         res.json({ bids: bid });
       })
-      .catch(err => {
-        console.log(err);
-        res.sendStatus(404);
+      .catch(() => {
+        res.status(404).json({ errors: 'Bid not found.' });
       });
   } else if (req.user.role === 'user') {
     Bid.find({
@@ -219,8 +216,8 @@ exports.getBid = (req, res, next) => {
       .then(bid => {
         res.json({ bids: bid });
       })
-      .catch(err => {
-        console.log(err);
+      .catch(() => {
+        res.status(404).json({ errors: 'Bid not found.' });
       });
   }
 };
@@ -249,9 +246,8 @@ exports.deleteBid = (req, res, next) => {
         res.json({ bids: bid });
         refundUser(bid.product, bid.user);
       })
-      .catch(err => {
-        console.log(err);
-        res.sendStatus(404);
+      .catch(() => {
+        res.status(404).json({ errors: 'Bid not found.' });
       });
   } else if (req.user.role === 'user') {
     // User can only delete his bid
@@ -266,8 +262,8 @@ exports.deleteBid = (req, res, next) => {
           res.status(403).json({ error: 'This user cannot delete this bid' });
         }
       })
-      .catch(err => {
-        console.log(err);
+      .catch(() => {
+        res.status(404).json({ errors: 'Bid not found.' });
       });
   }
 };

@@ -29,7 +29,7 @@ exports.addUser = (req, res, next) => {
           res.json({ users: result });
         })
         .catch(err => {
-          console.log(err);
+          res.status(500).json({ errors: 'Something went wrong.' });
         });
     });
   } else {
@@ -49,8 +49,8 @@ exports.getAllUsers = (req, res, next) => {
       .then(users => {
         res.json({ users: users });
       })
-      .catch(err => {
-        console.log(err);
+      .catch(() => {
+        res.status(500).json({ errors: 'Something went wrong.' });
       });
   } else if (req.user.role === 'user') {
     User.find({
@@ -59,8 +59,8 @@ exports.getAllUsers = (req, res, next) => {
       .then(users => {
         res.json({ users: users });
       })
-      .catch(err => {
-        console.log(err);
+      .catch(() => {
+        res.status(500).json({ errors: 'Something went wrong.' });
       });
   }
 };
@@ -76,9 +76,8 @@ exports.getUser = (req, res, next) => {
       .then(user => {
         res.json({ users: user });
       })
-      .catch(err => {
-        console.log(err);
-        res.sendStatus(404);
+      .catch(() => {
+        res.status(404).json({ errors: 'User not found.' });
       });
   };
   if (typeof req.user === 'undefined') {
@@ -136,9 +135,8 @@ exports.editUser = (req, res, next) => {
           res.json({ users: user });
         }
       })
-      .catch(err => {
-        console.log(err);
-        res.sendStatus(404);
+      .catch(() => {
+        res.status(404).json({ errors: 'User not found.' });
       });
   } else if (req.user.role === 'user') {
     if (req.user._id.toString() !== userId.toString()) {
@@ -168,9 +166,8 @@ exports.editUser = (req, res, next) => {
             res.json({ users: user });
           }
         })
-        .catch(err => {
-          console.log(err);
-          res.sendStatus(404);
+        .catch(() => {
+          res.status(404).json({ errors: 'User not found.' });
         });
     }
   } else {
@@ -203,9 +200,8 @@ exports.deleteUser = (req, res, next) => {
         deleteBidsOfUser(user._id);
         res.json({ users: user });
       })
-      .catch(err => {
-        console.log(err);
-        res.sendStatus(404);
+      .catch(() => {
+        res.status(404).json({ errors: 'User not found.' });
       });
   } else {
     res
@@ -232,9 +228,8 @@ exports.addMoney = (req, res, next) => {
         user.save();
         res.json({ users: user });
       })
-      .catch(err => {
-        console.log(err);
-        res.sendStatus(404);
+      .catch(() => {
+        res.status(404).json({ errors: 'User not found.' });
       });
   }
 };

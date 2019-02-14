@@ -70,7 +70,7 @@ exports.Login = (req, res, next) => {
             wallet: user.wallet
           };
           let token = jwt.sign(payload, process.env.SECRET_KEY, {
-            expiresIn: 1440
+            expiresIn: '3d'
           });
           res.send({ token: token });
           next();
