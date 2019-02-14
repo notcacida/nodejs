@@ -12,6 +12,7 @@ exports.addUser = (req, res, next) => {
   const name = req.body.name;
   const role = req.body.role;
   const wallet = req.body.wallet;
+  const phoneNumber = req.body.phoneNumber;
   // Check requesting user: only admin can add other users on this route: POST on /users
   // Other route for adding users (/auth/register) will of course, not be protected.
   if (req.user.role === 'admin') {
@@ -21,7 +22,8 @@ exports.addUser = (req, res, next) => {
         password: hash,
         name: name,
         role: role,
-        wallet: wallet
+        wallet: wallet,
+        phoneNumber: phoneNumber
       });
       user
         .save()
@@ -106,6 +108,7 @@ exports.editUser = (req, res, next) => {
   const updatedName = req.body.name;
   const updatedRole = req.body.role;
   const updatedWallet = req.body.wallet;
+  const updatedPhone = req.body.phoneNumber;
 
   if (typeof req.user === 'undefined') {
     res.status(403).json({ error: 'Guest cannot edit users' });
@@ -118,6 +121,7 @@ exports.editUser = (req, res, next) => {
           user.name = updatedName || user.name;
           user.role = updatedRole || user.role;
           user.wallet = updatedWallet || user.wallet;
+          user.phoneNumber = updatedPhone || user.phoneNumber;
         };
         // IF admin gave a new password,
         // create a hashed value of the updated password
@@ -142,13 +146,14 @@ exports.editUser = (req, res, next) => {
     if (req.user._id.toString() !== userId.toString()) {
       res.status(403).json({ error: 'You can only edit your own user' });
     } else {
-      // User edits his own user, can edit his email, password & name
+      // User edits his own user, can edit his email, password & name & phone number
       User.findById(userId)
         .then(user => {
           // Aux function, used when updating
           let updateUserInfo = () => {
             user.email = updatedEmail || user.email;
             user.name = updatedName || user.name;
+            user.phoneNumber = updatedPassword || user.phoneNumber;
           };
           // IF user gave a new password,
           // create a hashed value of the updated password

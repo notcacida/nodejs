@@ -26,6 +26,12 @@ const userSchema = new Schema({
     required: false,
     default: 0
   },
+  phoneNumber: {
+    type: String,
+    required: false,
+    default: '1234567890'
+  },
+
   //token will exists only if the user request reset pass
   resetToken: String,
   resetTokenExpiration: Date
