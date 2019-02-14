@@ -153,7 +153,7 @@ exports.editUser = (req, res, next) => {
           let updateUserInfo = () => {
             user.email = updatedEmail || user.email;
             user.name = updatedName || user.name;
-            user.phoneNumber = updatedPassword || user.phoneNumber;
+            user.phoneNumber = updatedPhone || user.phoneNumber;
           };
           // IF user gave a new password,
           // create a hashed value of the updated password
