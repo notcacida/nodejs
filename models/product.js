@@ -13,15 +13,25 @@ var schema = new Schema({
   },
   img_url: {
     type: String,
+    default: 'https://i.imgur.com/tP72BMI.png',
     required: true
   },
   price: {
     type: Number,
     required: true
   },
+  reserve_amount: {
+    type: Number,
+    required: true
+  },
   bid_price: {
     type: Number,
     required: true
+  },
+  bid_counter: {
+    type: Number,
+    required: true,
+    default: 0
   },
   charity: {
     type: Schema.Types.ObjectId,

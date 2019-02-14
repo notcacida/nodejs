@@ -9,8 +9,14 @@ const Bid = require('../models/Bid');
 exports.addProduct = (req, res) => {
   if (req.user.role === 'admin') {
     const product = req.body;
+
+    // CHANGE CONTEST PRICING RULES HERE
+    // Bid price set by default as 2% of product's price
     product.bid_price =
       Math.round((req.body.price * 0.02 + 0.00001) * 100) / 100;
+    // Reserve amount set by default as 3X the product's price
+    product.reserve_amount = req.body.price * 3;
+
     Product.addProduct(product, (err, book) => {
       if (err) {
         res.sendStatus(400);
@@ -58,7 +64,8 @@ exports.putProdById = (req, res, next) => {
           (product.charity = uCharity || product.charity),
           (product.bid_price =
             Math.round((uPrice * 0.02 + 0.00001) * 100) / 100 ||
-            Math.round((product.price * 0.02 + 0.00001) * 100) / 100);
+            Math.round((product.price * 0.02 + 0.00001) * 100) / 100),
+          (product.reserve_amount = uPrice * 3 || product.price * 3);
         product.save();
         res.send({ products: product });
       })
