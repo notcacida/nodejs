@@ -42,10 +42,13 @@ exports.putCharityById = (req, res) => {
     const id = req.params._id;
     const uName = req.body.name;
     const uDescription = req.body.description;
+    const uImage = req.body.img_url;
+
     Charity.findById(id)
       .then(charity => {
         charity.name = uName || charity.name;
         charity.description = uDescription || charity.description;
+        charity.img_url = uImage || charity.img_url;
         charity.save();
         return charity;
       })
