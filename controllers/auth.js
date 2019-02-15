@@ -23,7 +23,8 @@ exports.Register = (req, res) => {
   const userData = {
     name: req.body.name,
     email: req.body.email,
-    password: req.body.password
+    password: req.body.password,
+    img_url: req.body.img_url
   };
   if (_validateEmail(req.body.email)) {
     User.findOne({

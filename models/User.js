@@ -15,7 +15,10 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
-
+  img_url: {
+    type: String,
+    default: 'https://i.imgur.com/tP72BMI.png'
+  },
   role: {
     type: String,
     required: false,
