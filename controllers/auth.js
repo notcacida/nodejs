@@ -73,7 +73,7 @@ exports.Login = (req, res, next) => {
           let token = jwt.sign(payload, process.env.SECRET_KEY, {
             expiresIn: '3d'
           });
-          res.send({ token: token });
+          res.send({ token: token, user: user });
           next();
         } else {
           //pass do not match
