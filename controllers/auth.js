@@ -50,7 +50,7 @@ exports.Register = (req, res) => {
         res.send('error' + err);
       });
   } else {
-    res.status(400).json({ error: 'Email no good' });
+    res.status(400).json({ error: 'Email must be of form email@email.net' });
   }
 };
 

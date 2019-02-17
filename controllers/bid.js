@@ -43,7 +43,7 @@ let checkoutProduct = (prodId, buyerId) => {
   });
 };
 
-// Flag product: increment its' bid counter
+// Flag product: increment or decrease its' bid counter
 let flagProduct = (prodId, addedBid) => {
   Product.findById(prodId)
     .then(product => {
@@ -121,6 +121,8 @@ exports.getAllBids = (req, res, next) => {
   } else if (req.user.role === 'admin') {
     // If user is admin, show all bids
     Bid.find()
+      .populate('charity')
+      .populate('product')
       .then(bids => {
         res.json({ bids: bids });
       })
@@ -132,6 +134,8 @@ exports.getAllBids = (req, res, next) => {
     Bid.find({
       user: req.user._id
     })
+      .populate('charity')
+      .populate('product')
       .then(bids => {
         res.json({ bids: bids });
       })
@@ -148,6 +152,8 @@ exports.getHistoricalBids = (req, res, next) => {
     res.status(403).json({ error: 'Guest can not see historical bids' });
   } else if (req.user.role === 'admin') {
     BidHistorical.find()
+      .populate('charity')
+      .populate('product')
       .then(bids => {
         res.json({ bids: bids });
       })
@@ -165,6 +171,8 @@ exports.getBidsOfUser = (req, res, next) => {
     Bid.find({
       user: userId
     })
+      .populate('charity')
+      .populate('product')
       .then(bids => {
         res.json({ bids: bids });
       })
@@ -202,6 +210,8 @@ exports.getBidsOnProduct = (req, res, next) => {
     Bid.find({
       product: prodId
     })
+      .populate('charity')
+      .populate('product')
       .then(bids => {
         res.json({ bids: bids });
       })
@@ -226,6 +236,8 @@ exports.getBid = (req, res, next) => {
     res.status(403).json({ error: 'Guest cannot see bids' });
   } else if (req.user.role === 'admin') {
     Bid.findById(bidId)
+      .populate('charity')
+      .populate('product')
       .then(bid => {
         res.json({ bids: bid });
       })
@@ -237,6 +249,8 @@ exports.getBid = (req, res, next) => {
       _id: bidId,
       user: req.user._id
     })
+      .populate('charity')
+      .populate('product')
       .then(bid => {
         res.json({ bids: bid });
       })
@@ -266,6 +280,8 @@ exports.deleteBid = (req, res, next) => {
   } else if (req.user.role === 'admin') {
     // Admin can delete any bid
     Bid.findByIdAndRemove(bidId)
+      .populate('charity')
+      .populate('product')
       .then(bid => {
         // Decrease bid counter on product
         flagProduct(bid.product, false);
@@ -284,6 +300,8 @@ exports.deleteBid = (req, res, next) => {
       _id: bidId,
       user: req.user._id
     })
+      .populate('charity')
+      .populate('product')
       .then(bid => {
         // Decrease bid counter on product
         flagProduct(bid.product, false);

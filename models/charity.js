@@ -23,24 +23,24 @@ var schema = new Schema({
 var Charity = (module.exports = mongoose.model('Charity', schema));
 module.exports = mongoose.model('Charity', schema);
 
-//get products
+// Get charities
 
 module.exports.getCharities = (callback, limit) => {
   Charity.find(callback).limit(limit);
 };
 
-//get product by id
+// Get one
 
 module.exports.getCharityById = (_id, callback) => {
   Charity.findById(_id, callback);
 };
 
-//add prodocut
+// Add one
 module.exports.addCharity = (product, callback) => {
   Charity.create(product, callback);
 };
 
-//update product
+// Update
 module.exports.updateCharity = (id, charity, options, callback) => {
   var query = {
     _id: id
@@ -56,7 +56,7 @@ module.exports.updateCharity = (id, charity, options, callback) => {
   Charity.findOneAndUpdate(query, update, options, callback);
 };
 
-//remove product
+// Remove one
 module.exports.removeCharity = (id, callback) => {
   var query = {
     _id: id
@@ -64,5 +64,3 @@ module.exports.removeCharity = (id, callback) => {
 
   Charity.deleteOne(query, callback);
 };
-
-// comment to expose this file to heroku GIT status
