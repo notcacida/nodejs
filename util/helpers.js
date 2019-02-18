@@ -33,9 +33,6 @@ exports.schemas = {
       .string()
       .email()
       .required(),
-    password: joi
-      .string()
-      .password()
-      .required()
+    password: joi.string().required()
   })
 };
