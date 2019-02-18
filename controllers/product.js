@@ -1,6 +1,6 @@
 const Product = require('../models/product');
 const Bid = require('../models/Bid');
-// const User = require('../models/User');
+const User = require('../models/User');
 
 // ACTIONS
 
@@ -93,9 +93,14 @@ exports.getProductsOfCharity = (req, res, next) => {
     });
 };
 
-// Refund users of bids deleted below
-// let refundUser = require('./bid').refundUser;
+// Delete product
+// Order is :
+// 1. Find users who bidded on this product, so they can be refunded ->
+// 2. Refund them ->
+// 3. Delete product ->
+// 4. Delete bids associated
 
+// 4.
 // Delete bids associated with products deleted
 let deleteBidsofProduct = _id => {
   Bid.deleteMany({
@@ -109,13 +114,14 @@ let deleteBidsofProduct = _id => {
     });
 };
 
-// Delete product
 // Only admin can delete a product
 exports.deleteById = (req, res, next) => {
   if (req.user.role === 'admin') {
     const productId = req.params._id;
+    // 3.
     Product.findByIdAndRemove(productId)
       .then(product => {
+        // 4.
         deleteBidsofProduct(productId);
         res.json({ products: product });
       })
@@ -128,3 +134,27 @@ exports.deleteById = (req, res, next) => {
       .json({ error: 'Invalid credentials for deleting a product' });
   }
 };
+
+// 1.
+exports.findUsersToRefund = (req, res, next) => {
+  let usersToRefund = [];
+  const productId = req.params._id;
+  console.log('refund users who bidded on: ', productId);
+  Bid.find({
+    product: productId
+  })
+    .then(bids => {
+      console.log('bids of product to delete are ', bids);
+      for (let i = 0; i < bids.length; i++) {
+        usersToRefund.push({ user: bids[i].user, amount: bids[i].bidAmount });
+      }
+      req.usersToRefund = usersToRefund;
+      next();
+    })
+    .catch(err => {
+      console.log(err);
+    });
+};
+
+// 2.
+// Done in products ROUTES using module from ../util

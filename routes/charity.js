@@ -3,8 +3,9 @@ var router = express.Router();
 
 const verifyToken = require('../util/verifyToken');
 const verifyLoggedIn = require('../util/verifyLoggedIn');
+const refundUsers = require('../util/refundUsers');
 
-var charityController = require('../controllers/charity');
+const charityController = require('../controllers/charity');
 
 // Add charity
 // Verify token will only let user continue if an Authorization header is sent with request
@@ -28,9 +29,11 @@ router.put(
 );
 // Delete charity
 router.delete(
-  '/:charityId',
+  '/:_id',
   verifyToken,
   verifyLoggedIn,
+  charityController.findUsersToRefund,
+  refundUsers,
   charityController.deleteCharity
 );
 

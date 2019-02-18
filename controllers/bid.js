@@ -70,44 +70,57 @@ let flagProduct = (prodId, addedBid) => {
 
 exports.addBid = (req, res, next) => {
   // Check requesting user
-  // This 'if' check is not needed actually, app never reacher addBid
+  // This 'if' check is not needed actually, app never reaches addBid
   // if there is no Authentification header on request, therefore no requesting user
   if (typeof req.user === 'undefined') {
     res.sendStatus(403).json({ error: 'Guest can not bid' });
   } else {
     const userThatMadeBid = req.user;
     const productId = req.body.product;
-    const charityId = req.body.charity;
-    const bid = new Bid({
-      user: userThatMadeBid,
-      product: productId,
-      charity: charityId
-    });
-    const historyBid = new BidHistorical({
-      user: userThatMadeBid,
-      product: productId,
-      charity: charityId
-    });
-    // Add bid to history
-    historyBid.save().catch(() => {
-      res.status(500).json({ errors: 'Something went wrong.' });
-    });
+    // Get bid price and charity of product we are bidding on
+    Product.findOne({
+      _id: productId
+    })
+      .then(product => {
+        const charityId = product.charity;
+        const bidAmount = product.bid_price;
+        // Save bid
+        const bid = new Bid({
+          user: userThatMadeBid,
+          product: productId,
+          charity: charityId,
+          bidAmount: bidAmount
+        });
+        const historyBid = new BidHistorical({
+          user: userThatMadeBid,
+          product: productId,
+          charity: charityId,
+          bidAmount: bidAmount
+        });
+        // Add bid to history
+        historyBid.save().catch(() => {
+          res.status(500).json({ errors: 'Something went wrong.' });
+        });
 
-    // Add bid to regular collection
-    bid
-      .save()
-      .then(bid => {
-        // Increase bid counter on product
-        flagProduct(bid.product, true);
-        return bid;
+        // Add bid to regular collection
+        bid
+          .save()
+          .then(bid => {
+            // Increase bid counter on product
+            flagProduct(bid.product, true);
+            return bid;
+          })
+          .then(bid => {
+            // Start payment process
+            checkoutProduct(bid.product, userThatMadeBid);
+            res.json({ bids: bid });
+          })
+          .catch(() => {
+            res.status(500).json({ errors: 'Something went wrong.' });
+          });
       })
-      .then(bid => {
-        // Start payment process
-        checkoutProduct(bid.product, userThatMadeBid);
-        res.json({ bids: bid });
-      })
-      .catch(() => {
-        res.status(500).json({ errors: 'Something went wrong.' });
+      .catch(err => {
+        console.log(err);
       });
   }
 };
