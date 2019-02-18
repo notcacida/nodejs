@@ -4,6 +4,7 @@ var router = express.Router();
 const verifyToken = require('../util/verifyToken');
 const verifyLoggedIn = require('../util/verifyLoggedIn');
 const refundUsers = require('../util/refundUsers');
+const checkProductForBids = require('../util/checkProductForBids');
 
 var productController = require('../controllers/product');
 
@@ -23,7 +24,15 @@ router.get('/charity/:_id', productController.getProductsOfCharity);
 router.get('/:_id', productController.getProductById);
 
 // Update product
-router.put('/:_id', verifyToken, verifyLoggedIn, productController.putProdById);
+// checkProductForBids checks if a product has bids on it
+// If the product has bids on it, we can't allow editing the products' price
+router.put(
+  '/:_id',
+  verifyToken,
+  verifyLoggedIn,
+  checkProductForBids,
+  productController.putProdById
+);
 
 // Delete product
 router.delete(
