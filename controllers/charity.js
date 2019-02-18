@@ -65,12 +65,15 @@ exports.putCharityById = (req, res) => {
   }
 };
 
-// Logical order of delete is either 4-1-2-3 or 4-1-3-2
+// Delete charity
+// Order is :
+// 1. Find users who bidded with this charity, so they can be refunded ->
+// 2. Refund them ->
+// 3. Delete charity ->
+// 4. Delete products associated with charity ->
+// 5. Delete bids associated with deleted products
 
-// 4. Refund users of bids deleted
-// let refundUser = require('./bid').refundUser;
-
-// 3. Delete bids associated with the products that were removed with charity
+// 5.
 let deleteBidsOfCharity = charityId => {
   Bid.deleteMany({
     charity: charityId
@@ -83,7 +86,7 @@ let deleteBidsOfCharity = charityId => {
     });
 };
 
-// 2. Delete products associated with the deleted charity
+// 4.
 let deleteProductsOfCharity = charityId => {
   Product.deleteMany({
     charity: charityId
@@ -96,14 +99,16 @@ let deleteProductsOfCharity = charityId => {
     });
 };
 
-// 1. Delete charity
+// 3.
 // Only admin can delete a charity
 exports.deleteCharity = (req, res, next) => {
   if (req.user.role === 'admin') {
     const charityId = req.params.charityId;
     Charity.findByIdAndRemove(charityId)
       .then(charity => {
+        // 5.
         deleteBidsOfCharity(charityId);
+        // 4.
         deleteProductsOfCharity(charityId);
         res.json({ charities: charity });
       })
@@ -116,3 +121,27 @@ exports.deleteCharity = (req, res, next) => {
       .json({ error: 'Invalid credentials for deleting a charity' });
   }
 };
+
+// 1.
+exports.findUsersToRefund = (req, res, next) => {
+  let usersToRefund = [];
+  const charityId = req.params._id;
+  console.log('refund users who bidded on charity: ', charityId);
+  Bid.find({
+    charity: charityId
+  })
+    .then(bids => {
+      console.log('bids of product to delete are ', bids);
+      for (let i = 0; i < bids.length; i++) {
+        usersToRefund.push({ user: bids[i].user, amount: bids[i].bidAmount });
+      }
+      req.usersToRefund = usersToRefund;
+      next();
+    })
+    .catch(err => {
+      console.log(err);
+    });
+};
+
+// 2.
+// Done in charities ROUTES using module from ../util

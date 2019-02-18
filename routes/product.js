@@ -3,6 +3,7 @@ var router = express.Router();
 
 const verifyToken = require('../util/verifyToken');
 const verifyLoggedIn = require('../util/verifyLoggedIn');
+const refundUsers = require('../util/refundUsers');
 
 var productController = require('../controllers/product');
 
@@ -29,6 +30,8 @@ router.delete(
   '/:_id',
   verifyToken,
   verifyLoggedIn,
+  productController.findUsersToRefund,
+  refundUsers,
   productController.deleteById
 );
 
