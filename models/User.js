@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const { validateBody, schemas } = require('../util/helpers');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -38,6 +38,15 @@ const userSchema = new Schema({
   //token will exists only if the user request reset pass
   resetToken: String,
   resetTokenExpiration: Date
+});
+
+userSchema.pre('save', async function(next) {
+  try {
+    validateBody(schemas.authSchema);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = mongoose.model('User', userSchema);
