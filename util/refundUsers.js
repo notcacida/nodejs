@@ -10,13 +10,11 @@ module.exports = (req, res, next) => {
     })
       .then(user => {
         user.wallet += usersToBeRefunded[i].amount;
-        return user.save();
-      })
-      .then(() => {
-        next();
+        user.save();
       })
       .catch(err => {
         console.log(err);
       });
   }
+  next();
 };
