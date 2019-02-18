@@ -22,10 +22,8 @@ exports.schemas = {
       .string()
       .email()
       .required(),
-    password: joi
-      .string()
-      .password()
-      .required(),
+    password: joi.string().required(),
+
     name: joi.string().required()
   }),
   loginSchema: joi.object().keys({
