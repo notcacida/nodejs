@@ -1,6 +1,5 @@
 const Product = require('../models/product');
 const Bid = require('../models/Bid');
-const User = require('../models/User');
 
 // ACTIONS
 
@@ -47,7 +46,10 @@ exports.getProductById = (req, res) => {
 
 // Update product
 // Only admin can edit a product
+
+// Don't allow editing a product's price if there are bids on that product
 exports.putProdById = (req, res, next) => {
+  console.log('product has bids on it: ', req.productHasBids);
   if (req.user.role === 'admin') {
     const id = req.params._id;
     const uName = req.body.name;
@@ -60,7 +62,9 @@ exports.putProdById = (req, res, next) => {
         (product.name = uName || product.name),
           (product.description = uDescription || product.description),
           (product.img_url = uImg_url || product.img_url),
-          (product.price = uPrice || product.price),
+          (product.price = req.productHasBids
+            ? product.price
+            : uPrice || product.price),
           (product.charity = uCharity || product.charity),
           (product.bid_price =
             Math.round((uPrice * 0.02 + 0.00001) * 100) / 100 ||
