@@ -5,6 +5,11 @@ const Bid = require('../models/Bid');
 
 // ACTIONS
 
+let _validateEmail = email => {
+  let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+};
+
 // Add a user
 exports.addUser = (req, res, next) => {
   const email = req.body.email;
@@ -110,52 +115,21 @@ exports.editUser = (req, res, next) => {
   const updatedWallet = req.body.wallet;
   const updatedPhone = req.body.phoneNumber;
 
-  if (typeof req.user === 'undefined') {
-    res.status(403).json({ error: 'Guest cannot edit users' });
-  } else if (req.user.role === 'admin') {
-    User.findById(userId)
-      .then(user => {
-        // Aux function, used when updating
-        let updateUserInfo = () => {
-          user.email = updatedEmail || user.email;
-          user.name = updatedName || user.name;
-          user.role = updatedRole || user.role;
-          user.wallet = updatedWallet || user.wallet;
-          user.phoneNumber = updatedPhone || user.phoneNumber;
-        };
-        // IF admin gave a new password,
-        // create a hashed value of the updated password
-        // ELSE do the update without a new password
-        if (typeof updatedPassword !== 'undefined') {
-          bcrypt.hash(updatedPassword, 10, (err, hash) => {
-            user.password = hash;
-            updateUserInfo();
-            user.save();
-            res.json({ users: user });
-          });
-        } else {
-          updateUserInfo();
-          user.save();
-          res.json({ users: user });
-        }
-      })
-      .catch(() => {
-        res.status(404).json({ errors: 'User not found.' });
-      });
-  } else if (req.user.role === 'user') {
-    if (req.user._id.toString() !== userId.toString()) {
-      res.status(403).json({ error: 'You can only edit your own user' });
-    } else {
-      // User edits his own user, can edit his email, password & name & phone number
+  if (updatedEmail === undefined) {
+    if (typeof req.user === 'undefined') {
+      res.status(403).json({ error: 'Guest cannot edit users' });
+    } else if (req.user.role === 'admin') {
       User.findById(userId)
         .then(user => {
           // Aux function, used when updating
           let updateUserInfo = () => {
             user.email = updatedEmail || user.email;
             user.name = updatedName || user.name;
-            user.phoneNumber = updatedPassword || user.phoneNumber;
+            user.role = updatedRole || user.role;
+            user.wallet = updatedWallet || user.wallet;
+            user.phoneNumber = updatedPhone || user.phoneNumber;
           };
-          // IF user gave a new password,
+          // IF admin gave a new password,
           // create a hashed value of the updated password
           // ELSE do the update without a new password
           if (typeof updatedPassword !== 'undefined') {
@@ -174,9 +148,115 @@ exports.editUser = (req, res, next) => {
         .catch(() => {
           res.status(404).json({ errors: 'User not found.' });
         });
+    } else if (req.user.role === 'user') {
+      if (req.user._id.toString() !== userId.toString()) {
+        res.status(403).json({ error: 'You can only edit your own user' });
+      } else {
+        // User edits his own user, can edit his email, password & name & phone number
+        User.findById(userId)
+          .then(user => {
+            // Aux function, used when updating
+            let updateUserInfo = () => {
+              user.email = updatedEmail || user.email;
+              user.name = updatedName || user.name;
+              user.phoneNumber = updatedPassword || user.phoneNumber;
+            };
+            // IF user gave a new password,
+            // create a hashed value of the updated password
+            // ELSE do the update without a new password
+            if (typeof updatedPassword !== 'undefined') {
+              bcrypt.hash(updatedPassword, 10, (err, hash) => {
+                user.password = hash;
+                updateUserInfo();
+                user.save();
+                res.json({ users: user });
+              });
+            } else {
+              updateUserInfo();
+              user.save();
+              res.json({ users: user });
+            }
+          })
+          .catch(() => {
+            res.status(404).json({ errors: 'User not found.' });
+          });
+      }
+    } else {
+      res.status(403).json({ error: 'Invalid credentials to edit a user' });
     }
   } else {
-    res.status(403).json({ error: 'Invalid credentials to edit a user' });
+    if (_validateEmail(updatedEmail)) {
+      if (typeof req.user === 'undefined') {
+        res.status(403).json({ error: 'Guest cannot edit users' });
+      } else if (req.user.role === 'admin') {
+        User.findById(userId)
+          .then(user => {
+            // Aux function, used when updating
+            let updateUserInfo = () => {
+              user.email = updatedEmail || user.email;
+              user.name = updatedName || user.name;
+              user.role = updatedRole || user.role;
+              user.wallet = updatedWallet || user.wallet;
+              user.phoneNumber = updatedPhone || user.phoneNumber;
+            };
+            // IF admin gave a new password,
+            // create a hashed value of the updated password
+            // ELSE do the update without a new password
+            if (typeof updatedPassword !== 'undefined') {
+              bcrypt.hash(updatedPassword, 10, (err, hash) => {
+                user.password = hash;
+                updateUserInfo();
+                user.save();
+                res.json({ users: user });
+              });
+            } else {
+              updateUserInfo();
+              user.save();
+              res.json({ users: user });
+            }
+          })
+          .catch(() => {
+            res.status(404).json({ errors: 'User not found.' });
+          });
+      } else if (req.user.role === 'user') {
+        if (req.user._id.toString() !== userId.toString()) {
+          res.status(403).json({ error: 'You can only edit your own user' });
+        } else {
+          // User edits his own user, can edit his email, password & name & phone number
+          User.findById(userId)
+            .then(user => {
+              // Aux function, used when updating
+              let updateUserInfo = () => {
+                user.email = updatedEmail || user.email;
+                user.name = updatedName || user.name;
+                user.phoneNumber = updatedPassword || user.phoneNumber;
+              };
+              // IF user gave a new password,
+              // create a hashed value of the updated password
+              // ELSE do the update without a new password
+              if (typeof updatedPassword !== 'undefined') {
+                bcrypt.hash(updatedPassword, 10, (err, hash) => {
+                  user.password = hash;
+                  updateUserInfo();
+                  user.save();
+                  res.json({ users: user });
+                });
+              } else {
+                updateUserInfo();
+                user.save();
+                res.json({ users: user });
+              }
+            })
+            .catch(() => {
+              res.status(404).json({ errors: 'User not found.' });
+            });
+        }
+      } else {
+        res.status(403).json({ error: 'Invalid credentials to edit a user' });
+      }
+    } else {
+      res.status(403).json({ error: 'Wrong email format' });
+    }
   }
 };
 
