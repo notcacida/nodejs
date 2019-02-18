@@ -103,7 +103,7 @@ let deleteProductsOfCharity = charityId => {
 // Only admin can delete a charity
 exports.deleteCharity = (req, res, next) => {
   if (req.user.role === 'admin') {
-    const charityId = req.params.charityId;
+    const charityId = req.params._id;
     Charity.findByIdAndRemove(charityId)
       .then(charity => {
         // 5.

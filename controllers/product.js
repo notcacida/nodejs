@@ -122,7 +122,6 @@ let deleteBidsofProduct = _id => {
 exports.deleteById = (req, res, next) => {
   if (req.user.role === 'admin') {
     const productId = req.params._id;
-    console.log('reached product delete');
     // 3.
     Product.findByIdAndRemove(productId)
       .then(product => {
