@@ -18,6 +18,7 @@ exports.addUser = (req, res, next) => {
   const role = req.body.role;
   const wallet = req.body.wallet;
   const phoneNumber = req.body.phoneNumber;
+  const img_url = req.body.img_url;
   // Check requesting user: only admin can add other users on this route: POST on /users
   // Other route for adding users (/auth/register) will of course, not be protected.
   if (req.user.role === 'admin') {
@@ -28,7 +29,8 @@ exports.addUser = (req, res, next) => {
         name: name,
         role: role,
         wallet: wallet,
-        phoneNumber: phoneNumber
+        phoneNumber: phoneNumber,
+        img_url: img_url
       });
       user
         .save()

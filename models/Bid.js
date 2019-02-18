@@ -13,6 +13,10 @@ const bidSchema = new Schema({
     ref: 'Product',
     required: true
   },
+  bidAmount: {
+    type: Number,
+    required: true
+  },
   charity: {
     type: Schema.Types.ObjectId,
     ref: 'Charity',

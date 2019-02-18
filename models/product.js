@@ -51,36 +51,30 @@ var schema = new Schema({
 var Product = (module.exports = mongoose.model('Product', schema));
 module.exports = mongoose.model('Product', schema);
 
-//get products
-
+// Get products
 module.exports.getProducts = (callback, limit) => {
-  Product.find(callback).limit(limit);
+  Product.find(callback)
+    .populate('charity')
+    .limit(limit);
 };
 
-//get product by id
-
+// Get one
 module.exports.getProductById = (_id, callback) => {
-  Product.findById(_id, callback);
+  Product.findById(_id, callback).populate('charity');
 };
 
-//add product
+// Add one
 module.exports.addProduct = (product, callback) => {
   Product.create(product, callback);
 };
 
-//update product
+// Update one
 module.exports.updateProduct = (id, product, options, callback) => {
   var query = {
     _id: id
   };
 
   var update = {
-    // name: product.name,
-    // description: product.description,
-    // img_url: product.img_url,
-    // price: product.price,
-    // bid_price: product.bid_price,
-    // charity: product.charity
     name: req.body.name || product.name,
     description: req.body.description || product.description,
     img_url: req.body.img_url || product.img_url,
@@ -91,7 +85,7 @@ module.exports.updateProduct = (id, product, options, callback) => {
   Product.findOneAndUpdate(query, update, options, callback);
 };
 
-//remove product
+// Remove one
 module.exports.removeProduct = (id, callback) => {
   var query = {
     _id: id
@@ -99,5 +93,3 @@ module.exports.removeProduct = (id, callback) => {
 
   Product.deleteOne(query, callback);
 };
-
-// comment to expose this file to heroku GIT status

@@ -43,7 +43,7 @@ let checkoutProduct = (prodId, buyerId) => {
   });
 };
 
-// Flag product: increment its' bid counter
+// Flag product: increment or decrease its' bid counter
 let flagProduct = (prodId, addedBid) => {
   Product.findById(prodId)
     .then(product => {
@@ -70,44 +70,57 @@ let flagProduct = (prodId, addedBid) => {
 
 exports.addBid = (req, res, next) => {
   // Check requesting user
-  // This 'if' check is not needed actually, app never reacher addBid
+  // This 'if' check is not needed actually, app never reaches addBid
   // if there is no Authentification header on request, therefore no requesting user
   if (typeof req.user === 'undefined') {
     res.sendStatus(403).json({ error: 'Guest can not bid' });
   } else {
     const userThatMadeBid = req.user;
     const productId = req.body.product;
-    const charityId = req.body.charity;
-    const bid = new Bid({
-      user: userThatMadeBid,
-      product: productId,
-      charity: charityId
-    });
-    const historyBid = new BidHistorical({
-      user: userThatMadeBid,
-      product: productId,
-      charity: charityId
-    });
-    // Add bid to history
-    historyBid.save().catch(() => {
-      res.status(500).json({ errors: 'Something went wrong.' });
-    });
+    // Get bid price and charity of product we are bidding on
+    Product.findOne({
+      _id: productId
+    })
+      .then(product => {
+        const charityId = product.charity;
+        const bidAmount = product.bid_price;
+        // Save bid
+        const bid = new Bid({
+          user: userThatMadeBid,
+          product: productId,
+          charity: charityId,
+          bidAmount: bidAmount
+        });
+        const historyBid = new BidHistorical({
+          user: userThatMadeBid,
+          product: productId,
+          charity: charityId,
+          bidAmount: bidAmount
+        });
+        // Add bid to history
+        historyBid.save().catch(() => {
+          res.status(500).json({ errors: 'Something went wrong.' });
+        });
 
-    // Add bid to regular collection
-    bid
-      .save()
-      .then(bid => {
-        // Increase bid counter on product
-        flagProduct(bid.product, true);
-        return bid;
+        // Add bid to regular collection
+        bid
+          .save()
+          .then(bid => {
+            // Increase bid counter on product
+            flagProduct(bid.product, true);
+            return bid;
+          })
+          .then(bid => {
+            // Start payment process
+            checkoutProduct(bid.product, userThatMadeBid);
+            res.json({ bids: bid });
+          })
+          .catch(() => {
+            res.status(500).json({ errors: 'Something went wrong.' });
+          });
       })
-      .then(bid => {
-        // Start payment process
-        checkoutProduct(bid.product, userThatMadeBid);
-        res.json({ bids: bid });
-      })
-      .catch(() => {
-        res.status(500).json({ errors: 'Something went wrong.' });
+      .catch(err => {
+        console.log(err);
       });
   }
 };
@@ -121,6 +134,8 @@ exports.getAllBids = (req, res, next) => {
   } else if (req.user.role === 'admin') {
     // If user is admin, show all bids
     Bid.find()
+      .populate('charity')
+      .populate('product')
       .then(bids => {
         res.json({ bids: bids });
       })
@@ -132,6 +147,8 @@ exports.getAllBids = (req, res, next) => {
     Bid.find({
       user: req.user._id
     })
+      .populate('charity')
+      .populate('product')
       .then(bids => {
         res.json({ bids: bids });
       })
@@ -148,6 +165,8 @@ exports.getHistoricalBids = (req, res, next) => {
     res.status(403).json({ error: 'Guest can not see historical bids' });
   } else if (req.user.role === 'admin') {
     BidHistorical.find()
+      .populate('charity')
+      .populate('product')
       .then(bids => {
         res.json({ bids: bids });
       })
@@ -165,6 +184,8 @@ exports.getBidsOfUser = (req, res, next) => {
     Bid.find({
       user: userId
     })
+      .populate('charity')
+      .populate('product')
       .then(bids => {
         res.json({ bids: bids });
       })
@@ -202,6 +223,8 @@ exports.getBidsOnProduct = (req, res, next) => {
     Bid.find({
       product: prodId
     })
+      .populate('charity')
+      .populate('product')
       .then(bids => {
         res.json({ bids: bids });
       })
@@ -226,6 +249,8 @@ exports.getBid = (req, res, next) => {
     res.status(403).json({ error: 'Guest cannot see bids' });
   } else if (req.user.role === 'admin') {
     Bid.findById(bidId)
+      .populate('charity')
+      .populate('product')
       .then(bid => {
         res.json({ bids: bid });
       })
@@ -237,6 +262,8 @@ exports.getBid = (req, res, next) => {
       _id: bidId,
       user: req.user._id
     })
+      .populate('charity')
+      .populate('product')
       .then(bid => {
         res.json({ bids: bid });
       })
@@ -266,6 +293,8 @@ exports.deleteBid = (req, res, next) => {
   } else if (req.user.role === 'admin') {
     // Admin can delete any bid
     Bid.findByIdAndRemove(bidId)
+      .populate('charity')
+      .populate('product')
       .then(bid => {
         // Decrease bid counter on product
         flagProduct(bid.product, false);
@@ -284,6 +313,8 @@ exports.deleteBid = (req, res, next) => {
       _id: bidId,
       user: req.user._id
     })
+      .populate('charity')
+      .populate('product')
       .then(bid => {
         // Decrease bid counter on product
         flagProduct(bid.product, false);

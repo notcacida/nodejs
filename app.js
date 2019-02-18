@@ -66,21 +66,7 @@ mongoose
     'mongodb+srv://apetrisor:Zaq123ap%21@cluster0-c1rs5.mongodb.net/Donate2Win?retryWrites=true',
     { useNewUrlParser: true }
   )
-  .then(result => {
-    User.findOne().then(user => {
-      if (!user) {
-        const user = new User({
-          name: 'adi',
-          email: 'user@user.net',
-          password: '123456',
-          cart: {
-            items: []
-          }
-        });
-        user.save();
-      }
-    });
-  })
+  .then()
   .catch(err => {
     console.log(err);
   });

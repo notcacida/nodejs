@@ -23,7 +23,8 @@ exports.Register = (req, res) => {
   const userData = {
     name: req.body.name,
     email: req.body.email,
-    password: req.body.password
+    password: req.body.password,
+    img_url: req.body.img_url
   };
   if (_validateEmail(req.body.email)) {
     User.findOne({
@@ -49,7 +50,7 @@ exports.Register = (req, res) => {
         res.send('error' + err);
       });
   } else {
-    res.status(400).json({ error: 'Email no good' });
+    res.status(400).json({ error: 'Email must be of form email@email.net' });
   }
 };
 
@@ -72,7 +73,7 @@ exports.Login = (req, res, next) => {
           let token = jwt.sign(payload, process.env.SECRET_KEY, {
             expiresIn: '3d'
           });
-          res.send({ token: token });
+          res.send({ token: token, user: user });
           next();
         } else {
           //pass do not match
