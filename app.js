@@ -28,6 +28,22 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 mongoose.set('useFindAndModify', false);
 
+// CORS HANDLING
+// Send headers from SERVER to CLIENT to let client know it can access my resources
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  );
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE');
+    return res.status(200).json({});
+  }
+  next();
+});
+
 // Login actual user before using app
 // We look at token and login THAT user, belonging to the token
 // We append this user object to every subsequent request made by our app.
@@ -70,5 +86,27 @@ mongoose
   .catch(err => {
     console.log(err);
   });
+
+// ADD A FLAG ON PRODUCT TO MARK IT AS OPEN, CLOSED
+// Cron job
+// This will be used for running the contest
+// Every hour this script will run and look at the end dates for all products
+// If an end date has passed, that means the contest has completed for that product
+// At that point, we select a winner from all the OPEN bids submitted on that product
+// In a separate collection, we save an object of shape:
+// {
+//      winner: user object
+//      product: product won
+// }
+// -> flag the product as CLOSED to stop the contest starting again for the same product
+// -> flag all bids on that product as CLOSED
+// This collection is called regularly by the Front-end
+// If they find their user in the winner's collection, they will pop-up a message: 'Congratz you won'
+
+let cron = require('node-cron');
+
+cron.schedule('* * * * *', () => {
+  console.log('running a task every minute');
+});
 
 module.exports = app;
