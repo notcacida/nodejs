@@ -1,5 +1,9 @@
 const bcrypt = require('bcryptjs');
 
+// don't think multer is required here, delete later
+// const multer = require('multer');
+// const upload = multer({ dest: '/uploads/' });
+
 const User = require('../models/User');
 const Bid = require('../models/Bid');
 
@@ -12,6 +16,7 @@ let _validateEmail = email => {
 
 // Add a user
 exports.addUser = (req, res, next) => {
+  console.log('file is', req.file);
   const email = req.body.email;
   const password = req.body.password;
   const name = req.body.name;
@@ -257,7 +262,7 @@ exports.editUser = (req, res, next) => {
         res.status(403).json({ error: 'Invalid credentials to edit a user' });
       }
     } else {
-      res.status(403).json({ error: 'Wrong email format' });
+      res.status(400).json({ error: 'Wrong email format' });
     }
   }
 };
