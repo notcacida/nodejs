@@ -180,6 +180,7 @@ exports.getHistoricalBids = (req, res, next) => {
 
 // Get bids of user
 exports.getBidsOfUser = (req, res, next) => {
+  const userId = req.params.userId;
   let showBids = () => {
     Bid.find({
       user: userId
@@ -196,7 +197,7 @@ exports.getBidsOfUser = (req, res, next) => {
   // Guest, don't show anything
   // Admin, show anything
   // Regular user, only show his bids if he wants them
-  const userId = req.params.userId;
+
   if (typeof req.user === 'undefined') {
     res.status(403).json({ error: 'Please login first' });
   } else if (req.user.role === 'admin') {
