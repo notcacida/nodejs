@@ -23,6 +23,9 @@ const User = require('./models/User');
 const app = express();
 app.use(expressValidator());
 app.use(logger('dev'));
+// User avatars
+app.use('/uploads', express.static('uploads'));
+//
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

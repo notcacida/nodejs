@@ -55,6 +55,7 @@ const userSchema = new Schema({
       lowercase: true
     }
   },
+
   facebook: {
     id: {
       type: String
@@ -63,7 +64,10 @@ const userSchema = new Schema({
       type: String,
       lowercase: true
     }
-  }
+  },
+  //token will exists only if the user request reset pass
+  resetToken: String,
+  resetTokenExpiration: Date
 });
 
 userSchema.pre('save', async function(next) {
