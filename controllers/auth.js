@@ -21,14 +21,17 @@ let _validateEmail = email => {
 // Register
 exports.Register = (req, res) => {
   const userData = {
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-    img_url: req.body.img_url
+    method: 'local',
+    local: {
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      img_url: req.body.img_url
+    }
   };
   if (_validateEmail(req.body.email)) {
     User.findOne({
-      email: req.body.email
+      'local.email': req.body.email
     })
       .then(user => {
         if (!user) {
@@ -36,7 +39,7 @@ exports.Register = (req, res) => {
             userData.password = hash;
             User.create(userData)
               .then(user => {
-                res.json({ status: user.email + ' Registered !' });
+                res.json({ status: user.local.email + ' Registered !' });
               })
               .catch(err => {
                 res.send('error' + err);
@@ -56,7 +59,7 @@ exports.Register = (req, res) => {
 
 exports.Login = (req, res, next) => {
   User.findOne({
-    email: req.body.email
+    'local.email': req.body.email
   })
     .then(user => {
       if (user) {
@@ -104,4 +107,37 @@ exports.Logout = (req, res, next) => {
     .catch(err => {
       console.log(err);
     });
+};
+
+//LOGIN FB
+exports.facebookOAuth = async (req, res, next) => {
+  //Generate token
+  const payload = {
+    id: req._id,
+    name: req.name,
+    email: req.email,
+    password: req.password,
+    role: req.role,
+    wallet: req.wallet
+  };
+  let token = jwt.sign(payload, process.env.SECRET_KEY, {
+    expiresIn: '3d'
+  });
+  res.status(200).json({ token: token });
+};
+
+exports.googleOAuth = async (req, res, next) => {
+  //Generate token
+  const payload = {
+    id: req._id,
+    name: req.name,
+    email: req.email,
+    password: req.password,
+    role: req.role,
+    wallet: req.wallet
+  };
+  let token = jwt.sign(payload, process.env.SECRET_KEY, {
+    expiresIn: '3d'
+  });
+  res.status(200).json({ token: token });
 };

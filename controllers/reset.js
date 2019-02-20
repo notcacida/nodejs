@@ -31,7 +31,7 @@ exports.resetPassword = (req, res, next) => {
     }
 
     const token = buffer.toString('hex');
-    User.findOne({ email: req.body.email })
+    User.findOne({ 'local.email': req.body.email })
       .then(user => {
         if (!user) {
           console.log('BAD USER');

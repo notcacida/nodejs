@@ -6,7 +6,7 @@ module.exports = (req, res, next) => {
   for (let i = 0; i < usersToBeRefunded.length; i++) {
     // Refund each user here
     User.findOne({
-      _id: usersToBeRefunded[i].user
+      'local._id': usersToBeRefunded[i].user
     })
       .then(user => {
         user.wallet += usersToBeRefunded[i].amount;
