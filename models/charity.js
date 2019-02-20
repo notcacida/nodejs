@@ -14,6 +14,14 @@ var schema = new Schema({
     type: String,
     required: true
   },
+  phone_number: {
+    type: String,
+    required: true
+  },
+  website: {
+    type: String,
+    required: true
+  },
   create_date: {
     type: Date,
     default: Date.now
@@ -36,8 +44,8 @@ module.exports.getCharityById = (_id, callback) => {
 };
 
 // Add one
-module.exports.addCharity = (product, callback) => {
-  Charity.create(product, callback);
+module.exports.addCharity = (charity, callback) => {
+  Charity.create(charity, callback);
 };
 
 // Update
@@ -50,7 +58,8 @@ module.exports.updateCharity = (id, charity, options, callback) => {
     name: charity.name,
     description: charity.description,
     img_url: charity.img_url,
-    products: charity.products
+    phone_number: charity.phone_number,
+    website: charity.website
   };
 
   Charity.findOneAndUpdate(query, update, options, callback);

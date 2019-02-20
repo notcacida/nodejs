@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 
-// Where to store pictures received,
+// Where to store pictures received for user avatars
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
     cb(null, './uploads');
@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    // 1MB limit on uploaded pictures
+    // 512kb limit on uploaded pictures
     fileSize: 1024 * 512
   }
 });
@@ -42,6 +42,7 @@ router.get('/', verifyLoggedIn, userController.getAllUsers);
 // Get one user
 router.get('/:userId', verifyLoggedIn, userController.getUser);
 // Update user
+// Method needs to be POST to allow file to be sent in form-data
 router.post(
   '/:userId',
   verifyToken,
