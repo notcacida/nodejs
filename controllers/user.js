@@ -23,7 +23,7 @@ exports.addUser = (req, res, next) => {
   const role = req.body.role;
   const wallet = req.body.wallet;
   const phoneNumber = req.body.phoneNumber;
-  const img_url = req.body.img_url;
+  const img_url = req.file.path;
   // Check requesting user: only admin can add other users on this route: POST on /users
   // Other route for adding users (/auth/register) will of course, not be protected.
   if (req.user.role === 'admin') {
@@ -121,6 +121,7 @@ exports.editUser = (req, res, next) => {
   const updatedRole = req.body.role;
   const updatedWallet = req.body.wallet;
   const updatedPhone = req.body.phoneNumber;
+  const updatedImage = req.file.path;
 
   if (updatedEmail === undefined) {
     if (typeof req.user === 'undefined') {
@@ -135,6 +136,7 @@ exports.editUser = (req, res, next) => {
             user.role = updatedRole || user.role;
             user.wallet = updatedWallet || user.wallet;
             user.phoneNumber = updatedPhone || user.phoneNumber;
+            user.img_url = updatedImage || user.img_url;
           };
           // IF admin gave a new password,
           // create a hashed value of the updated password
@@ -167,6 +169,7 @@ exports.editUser = (req, res, next) => {
               user.email = updatedEmail || user.email;
               user.name = updatedName || user.name;
               user.phoneNumber = updatedPassword || user.phoneNumber;
+              user.img_url = updatedImage || user.img_url;
             };
             // IF user gave a new password,
             // create a hashed value of the updated password
@@ -205,6 +208,7 @@ exports.editUser = (req, res, next) => {
               user.role = updatedRole || user.role;
               user.wallet = updatedWallet || user.wallet;
               user.phoneNumber = updatedPhone || user.phoneNumber;
+              user.img_url = updatedImage || user.img_url;
             };
             // IF admin gave a new password,
             // create a hashed value of the updated password
@@ -237,6 +241,7 @@ exports.editUser = (req, res, next) => {
                 user.email = updatedEmail || user.email;
                 user.name = updatedName || user.name;
                 user.phoneNumber = updatedPassword || user.phoneNumber;
+                user.img_url = updatedImage || user.img_url;
               };
               // IF user gave a new password,
               // create a hashed value of the updated password
