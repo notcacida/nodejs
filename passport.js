@@ -1,7 +1,7 @@
 const FacebookTokenStrategy = require('passport-facebook-token');
 const GooglePlusTokenStrategy = require('passport-google-plus-token');
 const passport = require('passport');
-const User = require('../nodejs/models/User');
+const User = require('./models/User');
 
 passport.use(
   'facebookToken',
