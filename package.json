@@ -23,7 +23,7 @@
     "url": "git+https://apetrisor91@bitbucket.org/winternship2019/nodejs.git"
   },
   "dependencies": {
-    "async": "^2.6.1",
+    "async": "^2.6.4",
     "bcrypt-nodejs": "0.0.3",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
